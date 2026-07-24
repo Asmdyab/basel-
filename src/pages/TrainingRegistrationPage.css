@@ -1,0 +1,425 @@
+.training-registration-page {
+  min-height: 100vh;
+  padding: 34px clamp(12px, 4vw, 48px) 70px;
+  color: #12251c;
+  background:
+    radial-gradient(circle at 90% 0%, rgba(33, 199, 124, 0.12), transparent 28rem),
+    linear-gradient(180deg, #f9fcfa, #edf5f0);
+}
+
+.training-registration-shell {
+  width: min(1080px, 100%);
+  margin-inline: auto;
+  overflow: hidden;
+  border: 1px solid #dfe9e3;
+  border-radius: 30px;
+  background: #fff;
+  box-shadow: 0 26px 75px rgba(7, 46, 31, 0.13);
+}
+
+.training-registration-header {
+  padding: clamp(28px, 5vw, 52px);
+  color: #fff;
+  background: linear-gradient(125deg, #052d1f, #116f4b);
+}
+
+.registration-back-link {
+  display: inline-flex;
+  margin-bottom: 18px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+.training-registration-header > span {
+  display: block;
+  color: #c7f45a;
+  font-size: 0.72rem;
+  font-weight: 1000;
+  letter-spacing: 0.13em;
+}
+
+.training-registration-header h1 {
+  margin: 7px 0 10px;
+  font-size: clamp(1.8rem, 4vw, 3.2rem);
+}
+
+.training-registration-header p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.training-selection-summary {
+  margin: -20px clamp(18px, 5vw, 42px) 0;
+  position: relative;
+  z-index: 1;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1.35fr repeat(3, minmax(0, 0.8fr));
+  gap: 10px;
+  border: 1px solid #dfe9e3;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 16px 42px rgba(7, 46, 31, 0.12);
+}
+
+.training-selection-sport,
+.training-selection-coach {
+  padding: 9px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 14px;
+  background: #f4f9f6;
+}
+
+.training-selection-sport img,
+.training-selection-coach img {
+  width: 62px;
+  height: 62px;
+  object-fit: cover;
+  border-radius: 14px;
+}
+
+.training-selection-coach img {
+  border-radius: 50%;
+}
+
+.training-selection-summary small {
+  display: block;
+  color: #718078;
+  font-size: 0.66rem;
+}
+
+.training-selection-summary strong {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.87rem;
+}
+
+.training-selection-summary span {
+  display: block;
+  margin-top: 2px;
+  color: #5f7168;
+  font-size: 0.66rem;
+}
+
+.training-selection-detail {
+  padding: 13px;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  border-radius: 14px;
+  background: #f4f9f6;
+}
+
+.training-registration-form {
+  padding: clamp(22px, 5vw, 42px);
+  display: grid;
+  gap: 20px;
+}
+
+.registration-form-section {
+  padding: clamp(18px, 4vw, 28px);
+  border: 1px solid #dfe9e3;
+  border-radius: 21px;
+  background: #f9fbfa;
+}
+
+.registration-section-title {
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.registration-section-title > span {
+  width: 45px;
+  height: 45px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  color: #062117;
+  background: linear-gradient(135deg, #c7f45a, #39d58f);
+  font-weight: 1000;
+}
+
+.registration-section-title small {
+  display: block;
+  color: #0d6b47;
+  font-size: 0.68rem;
+  font-weight: 1000;
+  letter-spacing: 0.1em;
+}
+
+.registration-section-title h2 {
+  margin: 2px 0 0;
+  font-size: 1.25rem;
+}
+
+.registration-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.registration-field {
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.registration-field:last-child {
+  margin-bottom: 0;
+}
+
+.registration-field > span {
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.registration-field input[type="text"],
+.registration-field input[type="number"] {
+  width: 100%;
+  min-height: 49px;
+  padding: 10px 13px;
+  border: 1px solid #cedbd4;
+  border-radius: 12px;
+  color: #12251c;
+  background: #fff;
+  font: inherit;
+  outline: none;
+}
+
+.registration-field input:focus {
+  border-color: #0d6b47;
+  box-shadow: 0 0 0 4px rgba(13, 107, 71, 0.1);
+}
+
+.registration-payment-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.registration-payment-card {
+  position: relative;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border: 2px solid transparent;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 7px 20px rgba(7, 46, 31, 0.06);
+  cursor: pointer;
+}
+
+.registration-payment-card input {
+  position: absolute;
+  opacity: 0;
+}
+
+.registration-payment-card strong {
+  font-size: 0.9rem;
+}
+
+.registration-payment-card span {
+  color: #718078;
+  font-size: 0.68rem;
+}
+
+.registration-payment-card.selected {
+  border-color: #0d6b47;
+  background: #ecf8f1;
+}
+
+.registration-field-hint {
+  color: #718078;
+  font-size: 0.7rem;
+}
+
+.registration-upload {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed #cbd9d1;
+  background: #fff;
+  cursor: pointer;
+}
+
+.registration-upload input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.registration-upload--profile {
+  width: 125px;
+  min-height: 125px;
+  padding: 8px;
+  border-radius: 50%;
+}
+
+.upload-field--profile {
+  align-items: flex-start;
+}
+
+.registration-image-preview--profile {
+  width: 105px;
+  height: 105px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.registration-upload--payment {
+  width: 100%;
+  min-height: 240px;
+  padding: 12px;
+  border-radius: 17px;
+}
+
+.registration-image-preview--payment {
+  width: 100%;
+  height: 280px;
+  object-fit: contain;
+  border-radius: 12px;
+  background: #f1f5f3;
+}
+
+.registration-upload-placeholder {
+  padding: 18px;
+  display: grid;
+  gap: 6px;
+  text-align: center;
+}
+
+.registration-upload-placeholder strong {
+  color: #0d6b47;
+}
+
+.registration-upload-placeholder small {
+  color: #718078;
+  font-size: 0.7rem;
+}
+
+.registration-message {
+  padding: 13px 15px;
+  border-radius: 12px;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.registration-message.error {
+  color: #a92727;
+  border: 1px solid #f2c1c1;
+  background: #fff1f1;
+}
+
+.registration-message.success {
+  color: #126843;
+  border: 1px solid #afe0c5;
+  background: #eaf8f0;
+}
+
+.registration-submit-button,
+.registration-primary-button {
+  min-height: 52px;
+  padding: 12px 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 14px;
+  color: #062117;
+  background: linear-gradient(135deg, #c7f45a, #39d58f);
+  box-shadow: 0 13px 28px rgba(33, 199, 124, 0.21);
+  font: inherit;
+  font-weight: 1000;
+  cursor: pointer;
+}
+
+.registration-submit-button:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+.registration-profile-link {
+  color: #0d6b47;
+  font-size: 0.82rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.training-registration-missing {
+  width: min(620px, 100%);
+  margin: 90px auto;
+  padding: 38px;
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(7, 46, 31, 0.12);
+  text-align: center;
+}
+
+.training-registration-missing p {
+  color: #718078;
+}
+
+@media (max-width: 850px) {
+  .training-selection-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .training-registration-page {
+    padding: 12px 8px 45px;
+  }
+
+  .training-registration-shell {
+    border-radius: 20px;
+  }
+
+  .training-selection-summary {
+    margin-inline: 12px;
+    grid-template-columns: 1fr;
+  }
+
+  .registration-form-grid,
+  .registration-payment-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .upload-field--profile {
+    align-items: center;
+  }
+
+  .registration-image-preview--payment {
+    height: 220px;
+  }
+}
+
+.registration-schedule-notice {
+  margin: 18px clamp(18px, 5vw, 44px) 0;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid #e7d3a2;
+  border-radius: 14px;
+  color: #684a17;
+  background: #fff9ec;
+}
+
+.registration-schedule-notice strong {
+  font-size: 0.9rem;
+}
+
+.registration-schedule-notice span {
+  font-size: 0.78rem;
+  line-height: 1.7;
+}

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#0d6b47"/>
+      <stop offset="1" stop-color="#39d58f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#g)"/>
+  <circle cx="600" cy="350" r="150" fill="none" stroke="#c7f45a" stroke-width="28" opacity=".85"/>
+  <path d="M450 350h300M600 200v300" stroke="#fff" stroke-width="24" stroke-linecap="round" opacity=".85"/>
+  <text x="600" y="610" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="70" fill="#fff">K-HUB TRAINING</text>
+</svg>

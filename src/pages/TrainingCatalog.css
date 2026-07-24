@@ -1,0 +1,924 @@
+.training-catalog-page {
+  --training-ink: #10231b;
+  --training-muted: #667970;
+  --training-line: #dfe9e3;
+  --training-surface: #ffffff;
+  --training-soft: #f3f8f5;
+  --training-green: #0d6b47;
+  --training-green-dark: #07462f;
+  --training-lime: #c7f45a;
+  min-height: 100vh;
+  padding: 34px clamp(14px, 4vw, 54px) 80px;
+  color: var(--training-ink);
+  background:
+    radial-gradient(circle at 92% 0%, rgba(33, 199, 124, 0.12), transparent 28rem),
+    linear-gradient(180deg, #f9fcfa, #edf5f0);
+}
+
+.training-catalog-hero,
+.training-sport-hero,
+.coach-profile-hero {
+  width: min(1240px, 100%);
+  margin-inline: auto;
+}
+
+.training-catalog-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 390px;
+  padding: clamp(32px, 6vw, 68px);
+  display: flex;
+  align-items: center;
+  border-radius: 34px;
+  color: #fff;
+  background:
+    linear-gradient(125deg, rgba(5, 37, 25, 0.96), rgba(15, 109, 72, 0.9)),
+    url("https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1700&q=85") center/cover;
+  box-shadow: 0 30px 80px rgba(7, 46, 31, 0.22);
+}
+
+.training-catalog-hero::after {
+  content: "";
+  position: absolute;
+  width: 310px;
+  height: 310px;
+  inset: auto -80px -130px auto;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+}
+
+.training-catalog-hero__content {
+  position: relative;
+  z-index: 1;
+  max-width: 860px;
+}
+
+.training-catalog-kicker,
+.training-sport-hero__content > span,
+.coach-profile-hero__content > span {
+  display: inline-flex;
+  margin-bottom: 12px;
+  color: var(--training-lime);
+  font-size: 0.78rem;
+  font-weight: 1000;
+  letter-spacing: 0.13em;
+}
+
+.training-catalog-hero h1,
+.training-sport-hero h1,
+.coach-profile-hero h1 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 4.4rem);
+  line-height: 1.12;
+}
+
+.training-catalog-hero p,
+.training-sport-hero__content > p,
+.coach-profile-hero__content > p {
+  max-width: 760px;
+  margin: 18px 0 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 1rem;
+  line-height: 1.9;
+}
+
+.training-catalog-steps {
+  margin-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.training-catalog-steps span {
+  padding: 9px 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  color: rgba(255, 255, 255, 0.88);
+  font-weight: 800;
+  font-size: 0.8rem;
+}
+
+.training-catalog-steps b {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #08251a;
+  background: var(--training-lime);
+}
+
+.training-catalog-section,
+.training-detail-layout,
+.coach-profile-layout {
+  width: min(1240px, 100%);
+  margin: 38px auto 0;
+}
+
+.training-catalog-heading {
+  margin-bottom: 22px;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.training-catalog-heading.compact {
+  margin-bottom: 18px;
+}
+
+.training-catalog-heading p,
+.coach-profile-eyebrow {
+  margin: 0 0 6px;
+  color: var(--training-green);
+  font-size: 0.72rem;
+  font-weight: 1000;
+  letter-spacing: 0.12em;
+}
+
+.training-catalog-heading h2,
+.training-detail-panel h2,
+.coach-profile-panel h2,
+.coach-contact-card h2 {
+  margin: 0;
+  font-size: clamp(1.45rem, 3vw, 2.25rem);
+}
+
+.training-catalog-heading > span,
+.training-selected-pill {
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: var(--training-green);
+  background: #e5f7ed;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.training-sports-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.training-sport-card {
+  overflow: hidden;
+  border: 1px solid var(--training-line);
+  border-radius: 25px;
+  background: var(--training-surface);
+  box-shadow: 0 12px 32px rgba(7, 46, 31, 0.08);
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.training-sport-card:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 25px 55px rgba(7, 46, 31, 0.15);
+}
+
+.training-sport-card__media {
+  position: relative;
+  height: 245px;
+  overflow: hidden;
+  background: var(--training-soft);
+}
+
+.training-sport-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.training-sport-card:hover .training-sport-card__media img {
+  transform: scale(1.06);
+}
+
+.training-sport-card__media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(7, 30, 21, 0.48), transparent 58%);
+}
+
+.training-sport-card__media > span {
+  position: absolute;
+  z-index: 1;
+  right: 14px;
+  bottom: 14px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  color: #fff;
+  background: rgba(7, 30, 21, 0.7);
+  backdrop-filter: blur(8px);
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+.training-sport-card__body {
+  padding: 18px;
+}
+
+.training-sport-card__title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.training-sport-card__title small {
+  color: var(--sport-accent);
+  font-size: 0.7rem;
+  font-weight: 1000;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.training-sport-card__title h3 {
+  margin: 3px 0 0;
+  font-size: 1.35rem;
+}
+
+.training-sport-card__title b {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  color: #fff;
+  background: var(--sport-accent);
+  font-size: 1.3rem;
+}
+
+.training-sport-card__body > p {
+  min-height: 78px;
+  margin: 12px 0 14px;
+  color: var(--training-muted);
+  line-height: 1.75;
+  font-size: 0.86rem;
+}
+
+.training-sport-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.training-sport-card__meta span {
+  padding: 6px 8px;
+  border-radius: 9px;
+  color: #54675e;
+  background: var(--training-soft);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.training-sport-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 510px;
+  display: flex;
+  align-items: flex-end;
+  border-radius: 34px;
+  box-shadow: 0 28px 75px rgba(7, 46, 31, 0.2);
+}
+
+.training-sport-hero > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.training-sport-hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(3, 24, 16, 0.96), rgba(4, 35, 23, 0.63) 57%, rgba(4, 30, 20, 0.25));
+}
+
+.training-sport-hero__content {
+  position: relative;
+  z-index: 1;
+  width: min(850px, 100%);
+  padding: clamp(28px, 5vw, 56px);
+  color: #fff;
+}
+
+.training-back-link {
+  display: inline-flex;
+  margin-bottom: 20px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.training-back-link.dark {
+  color: #bcefd5;
+}
+
+.training-sport-hero__stats {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(110px, 1fr));
+  gap: 10px;
+}
+
+.training-sport-hero__stats div,
+.coach-profile-hero__side div {
+  padding: 13px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(9px);
+}
+
+.training-sport-hero__stats small,
+.coach-profile-hero__side small {
+  display: block;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.68rem;
+}
+
+.training-sport-hero__stats strong,
+.coach-profile-hero__side strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.88rem;
+}
+
+.training-detail-layout,
+.coach-profile-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  align-items: start;
+  gap: 22px;
+}
+
+.training-detail-main,
+.coach-profile-main {
+  display: grid;
+  gap: 20px;
+}
+
+.training-detail-panel,
+.training-booking-summary,
+.coach-profile-panel,
+.coach-contact-card {
+  padding: clamp(20px, 4vw, 30px);
+  border: 1px solid var(--training-line);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 14px 40px rgba(7, 46, 31, 0.08);
+}
+
+.training-features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.training-features-grid div {
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 14px;
+  background: var(--training-soft);
+}
+
+.training-features-grid span {
+  color: var(--training-green);
+  font-size: 0.74rem;
+  font-weight: 1000;
+}
+
+.training-features-grid strong {
+  font-size: 0.87rem;
+}
+
+.training-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.training-slot-card {
+  min-height: 112px;
+  padding: 14px;
+  border: 1px solid var(--training-line);
+  border-radius: 15px;
+  color: var(--training-ink);
+  background: #fff;
+  cursor: pointer;
+  text-align: right;
+  transition: 0.18s ease;
+}
+
+.training-slot-card:hover,
+.training-slot-card.selected {
+  transform: translateY(-2px);
+  border-color: var(--training-green);
+  background: #edf9f2;
+  box-shadow: 0 10px 24px rgba(13, 107, 71, 0.12);
+}
+
+.training-slot-card span,
+.training-slot-card small {
+  display: block;
+  color: var(--training-muted);
+  font-size: 0.7rem;
+}
+
+.training-slot-card strong {
+  display: block;
+  margin: 5px 0;
+  font-size: 1rem;
+}
+
+.training-coaches-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 300px));
+  justify-content: center;
+  align-items: start;
+  gap: 18px;
+}
+
+.training-coach-card {
+  width: 100%;
+  max-width: 300px;
+  overflow: hidden;
+  border: 1px solid var(--training-line);
+  border-radius: 21px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(7, 46, 31, 0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.training-coach-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 18px 38px rgba(7, 46, 31, 0.13);
+}
+
+.training-coach-card__image {
+  position: relative;
+  height: 185px;
+  overflow: hidden;
+  background: var(--training-soft);
+}
+
+.training-coach-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 25%;
+}
+
+.training-coach-card__image span {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  padding: 7px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 0.72rem;
+  font-weight: 1000;
+}
+
+.training-coach-card__body {
+  padding: 16px;
+}
+
+.training-coach-card__body > small {
+  color: var(--training-green);
+  font-weight: 900;
+}
+
+.training-coach-card__body h3 {
+  margin: 4px 0 8px;
+  font-size: 1.15rem;
+}
+
+.training-coach-card__body > p {
+  min-height: 68px;
+  margin: 0;
+  color: var(--training-muted);
+  font-size: 0.78rem;
+  line-height: 1.7;
+}
+
+.training-coach-card__meta {
+  margin-top: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.training-coach-card__meta span {
+  padding: 6px 8px;
+  border-radius: 8px;
+  background: var(--training-soft);
+  color: #566a60;
+  font-size: 0.66rem;
+  font-weight: 800;
+}
+
+.training-coach-card__actions {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.training-coach-card__actions .full {
+  width: 100%;
+  justify-content: center;
+}
+
+.training-action-button,
+.training-secondary-button {
+  min-height: 44px;
+  padding: 10px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 1000;
+  text-align: center;
+}
+
+.training-action-button {
+  color: #062117;
+  background: linear-gradient(135deg, var(--training-lime), #39d58f);
+  box-shadow: 0 10px 22px rgba(33, 199, 124, 0.19);
+}
+
+.training-secondary-button {
+  color: var(--training-green-dark);
+  border: 1px solid var(--training-line);
+  background: var(--training-soft);
+}
+
+.training-action-button.full {
+  width: 100%;
+}
+
+.training-action-button.disabled {
+  opacity: 0.48;
+  box-shadow: none;
+}
+
+.training-booking-summary,
+.coach-contact-card {
+  position: sticky;
+  top: 106px;
+}
+
+.training-booking-summary > span,
+.coach-contact-card > span {
+  color: var(--training-green);
+  font-size: 0.72rem;
+  font-weight: 1000;
+}
+
+.training-booking-summary h2 {
+  margin: 5px 0 18px;
+}
+
+.training-booking-summary dl {
+  margin: 0 0 18px;
+}
+
+.training-booking-summary dl div {
+  padding: 11px 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--training-line);
+}
+
+.training-booking-summary dt {
+  color: var(--training-muted);
+  font-size: 0.75rem;
+}
+
+.training-booking-summary dd {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-align: left;
+}
+
+.training-booking-summary > p,
+.coach-contact-card > p {
+  color: var(--training-muted);
+  font-size: 0.72rem;
+  line-height: 1.7;
+}
+
+.training-catalog-empty {
+  width: min(600px, calc(100% - 28px));
+  margin: 100px auto;
+  padding: 40px;
+  border-radius: 24px;
+  background: #fff;
+  text-align: center;
+  box-shadow: 0 18px 55px rgba(7, 46, 31, 0.11);
+}
+
+.coach-profile-hero {
+  padding: clamp(24px, 5vw, 48px);
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr) 220px;
+  align-items: center;
+  gap: 28px;
+  border-radius: 34px;
+  color: #fff;
+  background: linear-gradient(125deg, #052c1e, #116b49);
+  box-shadow: 0 28px 75px rgba(7, 46, 31, 0.21);
+}
+
+.coach-profile-hero__image {
+  overflow: hidden;
+  aspect-ratio: 1;
+  border: 4px solid rgba(255, 255, 255, 0.18);
+  border-radius: 28px;
+}
+
+.coach-profile-hero__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.coach-profile-chips {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.coach-profile-chips span {
+  padding: 7px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.coach-profile-hero__side {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.coach-achievements-list,
+.coach-timeline {
+  display: grid;
+  gap: 12px;
+}
+
+.coach-achievements-list > div {
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 15px;
+  background: var(--training-soft);
+}
+
+.coach-achievements-list > div > span {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: #fff4cc;
+  font-size: 1.2rem;
+}
+
+.coach-achievements-list small,
+.coach-timeline small {
+  display: block;
+  color: var(--training-muted);
+  font-size: 0.68rem;
+}
+
+.coach-achievements-list strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 0.83rem;
+}
+
+.coach-timeline > div {
+  display: grid;
+  grid-template-columns: 16px 1fr;
+  gap: 12px;
+}
+
+.coach-timeline > div > span {
+  width: 12px;
+  height: 12px;
+  margin-top: 6px;
+  border: 3px solid #c9f4dc;
+  border-radius: 50%;
+  background: var(--training-green);
+}
+
+.coach-timeline h3 {
+  margin: 2px 0;
+  font-size: 0.93rem;
+}
+
+.coach-timeline p {
+  margin: 0;
+  color: var(--training-muted);
+  font-size: 0.76rem;
+}
+
+.coach-certificates-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.coach-certificates-grid div {
+  padding: 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--training-line);
+  border-radius: 13px;
+}
+
+.coach-certificates-grid span {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: var(--training-green);
+  font-weight: 1000;
+}
+
+.coach-certificates-grid strong {
+  font-size: 0.75rem;
+}
+
+.coach-contact-card h2 {
+  margin: 5px 0 12px;
+  font-size: 1.35rem;
+}
+
+.coach-masked-phone,
+.coach-selected-slot {
+  margin: 14px 0;
+  padding: 14px;
+  border-radius: 14px;
+  background: var(--training-soft);
+}
+
+.coach-masked-phone small,
+.coach-selected-slot small {
+  display: block;
+  color: var(--training-muted);
+  font-size: 0.68rem;
+}
+
+.coach-masked-phone strong,
+.coach-selected-slot strong {
+  display: block;
+  margin-top: 4px;
+}
+
+@media (max-width: 1050px) {
+  .training-sports-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .training-detail-layout,
+  .coach-profile-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .training-booking-summary,
+  .coach-contact-card {
+    position: static;
+  }
+
+  .coach-profile-hero {
+    grid-template-columns: 180px 1fr;
+  }
+
+  .coach-profile-hero__side {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .training-catalog-page {
+    padding: 14px 10px 52px;
+  }
+
+  .training-catalog-hero,
+  .training-sport-hero,
+  .coach-profile-hero {
+    border-radius: 22px;
+  }
+
+  .training-catalog-hero {
+    min-height: 430px;
+  }
+
+  .training-catalog-steps span {
+    width: calc(50% - 5px);
+  }
+
+  .training-sports-grid,
+  .training-coaches-grid,
+  .training-features-grid,
+  .coach-certificates-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .training-sport-card__body > p {
+    min-height: auto;
+  }
+
+  .training-sport-hero {
+    min-height: 600px;
+  }
+
+  .training-sport-hero__overlay {
+    background: linear-gradient(to top, rgba(3, 24, 16, 0.98), rgba(4, 35, 23, 0.62));
+  }
+
+  .training-sport-hero__stats,
+  .training-slots-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .training-catalog-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .coach-profile-hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .coach-profile-hero__image {
+    width: 160px;
+    margin-inline: auto;
+  }
+
+  .coach-profile-chips {
+    justify-content: center;
+  }
+
+  .coach-profile-hero__side {
+    grid-column: auto;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* المواعيد في هذا الإصدار للعرض فقط، وليست قابلة للاختيار. */
+.training-slot-card.view-only {
+  cursor: default;
+}
+
+.training-slot-card.view-only:hover {
+  transform: none;
+  border-color: var(--training-line);
+  background: #fff;
+  box-shadow: none;
+}
+
+.training-view-only-pill {
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: #8a5b12;
+  background: #fff3d6;
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+.training-times-note {
+  margin: 0 0 16px;
+  padding: 12px 14px;
+  border: 1px solid #ecd7a5;
+  border-radius: 14px;
+  color: #71501b;
+  background: #fffaf0;
+  font-size: 0.8rem;
+  line-height: 1.8;
+}
