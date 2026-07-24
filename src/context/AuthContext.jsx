@@ -11,8 +11,7 @@ const API_BASE_URL = String(
   import.meta.env.VITE_API_BASE_URL ?? ""
 ).replace(/\/$/, "");
 
-const IS_DEMO_MODE =
-  import.meta.env.VITE_DEMO_MODE === "true";
+const IS_DEMO_MODE = true;
 
 const ACCESS_TOKEN_KEY = "accessToken";
 const SESSION_USER_KEY = "khub-user";
