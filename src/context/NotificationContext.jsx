@@ -6,11 +6,17 @@ import {
   useMemo,
   useState,
 } from "react";
+
+import * as signalR from "@microsoft/signalr";
 import { useAuth } from "./AuthContext.jsx";
 
 const NotificationContext = createContext(null);
 const NOTIFICATIONS_STORAGE_KEY = "khub-notifications-v1";
 
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL ??
+  "https://localhost:7187"
+).replace(/\/$/, "");
 function readNotifications() {
   try {
     const saved = localStorage.getItem(NOTIFICATIONS_STORAGE_KEY);
@@ -39,7 +45,7 @@ function normalizeNotification(notification) {
 }
 
 export function NotificationProvider({ children }) {
-  const { user } = useAuth();
+  const { user ,accessToken } = useAuth();
   const [notifications, setNotifications] = useState(readNotifications);
 
   const persist = useCallback((nextNotifications) => {
@@ -66,6 +72,60 @@ export function NotificationProvider({ children }) {
       if (!notification?.userId) {
         return null;
       }
+      useEffect(() => {
+  if (!user?.id || !accessToken) {
+    return undefined;
+  }
+
+  const connection = new signalR.HubConnectionBuilder()
+    .withUrl(`${API_BASE_URL}/hubs/notifications`, {
+      accessTokenFactory: () => accessToken,
+    })
+    .withAutomaticReconnect()
+    .configureLogging(signalR.LogLevel.Information)
+    .build();
+
+  connection.on(
+    "NotificationReceived",
+    (notification) => {
+      console.log(
+        "SignalR notification received:",
+        notification
+      );
+
+      addNotification(notification);
+    }
+  );
+
+  async function startConnection() {
+    try {
+      await connection.start();
+
+      console.log(
+        "SignalR connected:",
+        connection.connectionId
+      );
+    } catch (error) {
+      console.error(
+        "SignalR connection failed:",
+        error
+      );
+    }
+  }
+
+  startConnection();
+
+  return () => {
+    connection.off("NotificationReceived");
+
+    connection.stop().catch((error) => {
+      console.error(
+        "SignalR stop failed:",
+        error
+      );
+    });
+  };
+}, [accessToken, addNotification, user?.id]);
 
       const nextNotification = normalizeNotification(notification);
       const duplicateKey = [

@@ -4,10 +4,12 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { useUserProfiles } from "../context/UserProfileContext.jsx";
 import { getCourt, getCourtTrainingSportId } from "../data/courts.js";
 import { getTrainingSport } from "../data/trainingCatalog.js";
+
 import {
   fileToOptimizedDataUrl,
   validateImageFile,
 } from "../utils/imageUtils.js";
+import { convertImageToJpeg } from "../utils/convertImageToJpeg.js";
 import "./TrainingRegistrationPage.css";
 
 const paymentMethods = [
@@ -32,6 +34,9 @@ function useImagePreview(file) {
 
   return preview;
 }
+        
+
+
 
 export default function TrainingRegistrationPage() {
   const navigate = useNavigate();
@@ -70,27 +75,51 @@ export default function TrainingRegistrationPage() {
     setSuccess("");
   }
 
-  function handleImageChange(event, setter, label) {
-    const file = event.target.files?.[0] ?? null;
+ async function handleImageChange(
+  event,
+  setter,
+  label
+) {
+  const selectedFile =
+    event.target.files?.[0] ?? null;
 
-    if (!file) {
-      setter(null);
-      return;
-    }
-
-    const validationError = validateImageFile(file, label);
-
-    if (validationError) {
-      setError(validationError);
-      event.target.value = "";
-      return;
-    }
-
-    setter(file);
-    setError("");
-    setSuccess("");
+  if (!selectedFile) {
+    setter(null);
+    return;
   }
 
+  try {
+    setError("");
+    setSuccess("");
+
+    const convertedFile =
+      await convertImageToJpeg(selectedFile);
+
+    const validationError =
+      validateImageFile(
+        convertedFile,
+        label
+      );
+
+    if (validationError) {
+      event.target.value = "";
+      setter(null);
+      setError(validationError);
+      return;
+    }
+
+    setter(convertedFile);
+  } catch (error) {
+    event.target.value = "";
+    setter(null);
+
+    setError(
+      error instanceof Error
+        ? error.message
+        : "تعذر تجهيز الصورة."
+    );
+  }
+}
   function validateForm() {
     if (!sport || !court || !courtMatchesSport) {
       return "اختار الملعب قبل التسجيل.";
@@ -423,12 +452,12 @@ function FileUploadField({
     <div className={`registration-field upload-field upload-field--${variant}`}>
       <span>{title}</span>
       <label className={`registration-upload registration-upload--${variant}`}>
-        <input
-          type="file"
-          name={inputName}
-          accept="image/jpeg,image/png,image/webp"
-          onChange={onChange}
-        />
+       <input
+        type="file"
+        name={inputName}
+        accept="image/*,.heic,.heif"
+        onChange={onChange}
+/>
 
         {safePreview ? (
           <img
@@ -440,7 +469,7 @@ function FileUploadField({
           <div className="registration-upload-placeholder">
             <strong>اضغط لاختيار صورة</strong>
             <small>{description}</small>
-            <small>JPG أو PNG أو WEBP — بحد أقصى 5 MB</small>
+            <small> بحد أقصى 5 MB</small>
           </div>
         )}
       </label>
