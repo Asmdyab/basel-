@@ -38,6 +38,11 @@ function formatDate(value) {
   }).format(new Date(value));
 }
 
+function formatTime(timeStr) {
+  if (!timeStr) return "";
+  return timeStr.length > 5 ? timeStr.slice(0, 5) : timeStr;
+}
+
 function getInitials(name) {
   return String(name ?? "U")
     .trim()
@@ -274,138 +279,133 @@ export default function UserProfilePage() {
         </article>
       </section>
 
-      <div className="profile-columns">
-        <section className="profile-panel">
-          <div className="profile-panel-heading">
-            <div>
-              <p className="eyebrow">Member Information</p>
-              <h2>معلومات المستخدم</h2>
-            </div>
+      <section className="profile-panel profile-wide-panel">
+        <div className="profile-panel-heading">
+          <div>
+            <p className="eyebrow">Member Information</p>
+            <h2>معلومات المستخدم</h2>
           </div>
+        </div>
 
-          <dl className="profile-details-list">
-            <div><dt>الاسم</dt><dd>{profile.name}</dd></div>
-            <div><dt>الإيميل</dt><dd>{profile.email || "--"}</dd></div>
-            <div><dt>الموبايل</dt><dd>{profile.phone || "--"}</dd></div>
-            <div><dt>السن</dt><dd>{profile.age ? `${profile.age} سنة` : "--"}</dd></div>
-            <div>
-              <dt>اللعبة المفضلة</dt>
-              <dd>{sportLabels[profile.preferredSport] ?? (profile.preferredSport || "--")}</dd>
-            </div>
-          </dl>
+        <dl className="profile-details-list">
+          <div><dt>👤 الاسم</dt><dd>{profile.name}</dd></div>
+          <div><dt>✉️ الإيميل</dt><dd>{profile.email || "--"}</dd></div>
+          <div><dt>📱 الموبايل</dt><dd>{profile.phone || "--"}</dd></div>
+          <div><dt>🎂 السن</dt><dd>{profile.age ? `${profile.age} سنة` : "--"}</dd></div>
+          <div><dt>🏅 اللعبة المفضلة</dt><dd>{sportLabels[profile.preferredSport] ?? (profile.preferredSport || "--")}</dd></div>
+        </dl>
 
-          {isOwner && (
-            <form className="profile-edit-form" onSubmit={saveProfile}>
-              <h3>تعديل بياناتي</h3>
-              <div className="profile-edit-grid">
-                <label>
-                  الاسم
-                  <input
-                    value={editForm.name}
-                    onChange={(event) =>
-                      setEditForm({ ...editForm, name: event.target.value })
-                    }
-                  />
-                </label>
-                <label>
-                  رقم الموبايل
-                  <input
-                    value={editForm.phone}
-                    onChange={(event) =>
-                      setEditForm({ ...editForm, phone: event.target.value })
-                    }
-                  />
-                </label>
-                <label>
-                  السن
-                  <input
-                    type="number"
-                    min="5"
-                    max="100"
-                    value={editForm.age}
-                    onChange={(event) =>
-                      setEditForm({ ...editForm, age: event.target.value })
-                    }
-                  />
-                </label>
-                <label>
-                  اللعبة المفضلة
-                  <select
-                    value={editForm.preferredSport}
-                    onChange={(event) =>
-                      setEditForm({
-                        ...editForm,
-                        preferredSport: event.target.value,
-                      })
-                    }
-                  >
-                    <option value="">اختار اللعبة</option>
-                    {Object.entries(sportLabels).map(([value, label]) => (
-                      <option key={value} value={value}>{label}</option>
-                    ))}
-                  </select>
-                </label>
-              </div>
-
-              <label className="profile-image-input">
-                تحديث الصورة الشخصية
+        {isOwner && (
+          <form className="profile-edit-form" onSubmit={saveProfile}>
+            <h3>✏️ تعديل بياناتي</h3>
+            <div className="profile-edit-grid">
+              <label>
+                الاسم
                 <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
+                  value={editForm.name}
                   onChange={(event) =>
-                    setProfileImageFile(event.target.files?.[0] ?? null)
+                    setEditForm({ ...editForm, name: event.target.value })
                   }
                 />
               </label>
-
-              {profileError && <p className="profile-error">{profileError}</p>}
-              {profileMessage && <p className="profile-success">{profileMessage}</p>}
-
-              <button className="btn btn-primary" type="submit">
-                حفظ التعديلات
-              </button>
-            </form>
-          )}
-        </section>
-
-        {isAdmin && (
-          <section className="profile-panel admin-points-panel">
-            <div className="profile-panel-heading">
-              <div>
-                <p className="eyebrow">Admin Only</p>
-                <h2>إدارة نقاط المستخدم</h2>
-              </div>
+              <label>
+                رقم الموبايل
+                <input
+                  value={editForm.phone}
+                  onChange={(event) =>
+                    setEditForm({ ...editForm, phone: event.target.value })
+                  }
+                />
+              </label>
+              <label>
+                السن
+                <input
+                  type="number"
+                  min="5"
+                  max="100"
+                  value={editForm.age}
+                  onChange={(event) =>
+                    setEditForm({ ...editForm, age: event.target.value })
+                  }
+                />
+              </label>
+              <label>
+                اللعبة المفضلة
+                <select
+                  value={editForm.preferredSport}
+                  onChange={(event) =>
+                    setEditForm({
+                      ...editForm,
+                      preferredSport: event.target.value,
+                    })
+                  }
+                >
+                  <option value="">اختار اللعبة</option>
+                  {Object.entries(sportLabels).map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </label>
             </div>
 
-            <label>
-              عدد النقاط
+            <label className="profile-image-input">
+              تحديث الصورة الشخصية
               <input
-                type="number"
-                min="1"
-                value={pointsAmount}
-                onChange={(event) => setPointsAmount(event.target.value)}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                onChange={(event) =>
+                  setProfileImageFile(event.target.files?.[0] ?? null)
+                }
               />
             </label>
-            <label>
-              سبب التعديل
-              <input
-                value={pointsNote}
-                onChange={(event) => setPointsNote(event.target.value)}
-                placeholder="مثال: مكافأة انتظام"
-              />
-            </label>
-            <div className="points-actions">
-              <button className="btn btn-primary" type="button" onClick={() => changePoints(1)}>
-                إضافة نقاط
-              </button>
-              <button className="btn btn-danger" type="button" onClick={() => changePoints(-1)}>
-                خصم نقاط
-              </button>
-            </div>
-            {pointsMessage && <p className="points-message">{pointsMessage}</p>}
-          </section>
+
+            {profileError && <p className="profile-error">{profileError}</p>}
+            {profileMessage && <p className="profile-success">{profileMessage}</p>}
+
+            <button className="btn btn-primary" type="submit">
+              حفظ التعديلات
+            </button>
+          </form>
         )}
-      </div>
+      </section>
+
+      {isAdmin && (
+        <section className="profile-panel profile-wide-panel admin-points-panel">
+          <div className="profile-panel-heading">
+            <div>
+              <p className="eyebrow">Admin Only</p>
+              <h2>إدارة نقاط المستخدم</h2>
+            </div>
+          </div>
+
+          <label>
+            عدد النقاط
+            <input
+              type="number"
+              min="1"
+              value={pointsAmount}
+              onChange={(event) => setPointsAmount(event.target.value)}
+            />
+          </label>
+          <label>
+            سبب التعديل
+            <input
+              value={pointsNote}
+              onChange={(event) => setPointsNote(event.target.value)}
+              placeholder="مثال: مكافأة انتظام"
+            />
+          </label>
+          <div className="points-actions">
+            <button className="btn btn-primary" type="button" onClick={() => changePoints(1)}>
+              إضافة نقاط
+            </button>
+            <button className="btn btn-danger" type="button" onClick={() => changePoints(-1)}>
+              خصم نقاط
+            </button>
+          </div>
+          {pointsMessage && <p className="points-message">{pointsMessage}</p>}
+        </section>
+      )}
 
       <section className="profile-panel profile-wide-panel">
         <div className="profile-panel-heading">
@@ -484,47 +484,67 @@ export default function UserProfilePage() {
             <h3>لا توجد طلبات تمرين</h3>
           </div>
         ) : (
-          <div className="training-history-grid">
+          <div className="training-reg-grid">
             {userRegistrations.map((registration) => {
               const status = registrationStatus(registration.status);
 
               return (
-                <article className="training-history-card" key={registration.id}>
-                  <div className="training-history-copy">
+                <article className="training-reg-card" key={registration.id}>
+                  <div className="training-reg-head">
+                    <div className="training-reg-sport">
+                      <span className="training-reg-icon">🏋️</span>
+                      <div>
+                        <strong>{registration.sportName ?? sportLabels[registration.sportType] ?? registration.sportType}</strong>
+                        <span>{registration.courtName}</span>
+                      </div>
+                    </div>
                     <span className={`chip ${status.className}`}>{status.label}</span>
-                    <h3>{registration.sportName ?? sportLabels[registration.sportType] ?? registration.sportType}</h3>
-                    {registration.assignedCoachName && <p>الكابتن: {registration.assignedCoachName}</p>}
-                    {registration.courtName && <p>الملعب: {registration.courtName}</p>}
-                    <p>العمر: {registration.age} سنة</p>
-                    <p>الدفع: {registration.paymentMethod}</p>
-                    {registration.trainingPrice && <p>القيمة: {registration.trainingPrice} ج.م</p>}
-                    <p>مرجع العملية: {registration.transactionReference}</p>
-                    <small>{formatDate(registration.createdAt)}</small>
                   </div>
 
-                  <div className="training-history-images">
-                    {registration.profileImageUrl && (
-                      <div className="training-profile-image">
-                        <img src={registration.profileImageUrl} alt="صورة اللاعب" />
-                        <span>اللاعب</span>
+                  <div className="training-reg-body">
+                    <div className="training-reg-info">
+                      <div className="training-reg-dl">
+                        {registration.assignedCoachName && (
+                          <div><dt>الكابتن</dt><dd>{registration.assignedCoachName}</dd></div>
+                        )}
+                        {registration.assignedDate && (
+                          <div><dt>الموعد</dt><dd>{registration.assignedDate} {registration.assignedTime ? formatTime(registration.assignedTime) : ""}</dd></div>
+                        )}
+                        <div><dt>العمر</dt><dd>{registration.age} سنة</dd></div>
+                        <div><dt>الدفع</dt><dd>{registration.paymentMethod}</dd></div>
+                        {registration.trainingPrice && (
+                          <div><dt>القيمة</dt><dd>{registration.trainingPrice} ج.م</dd></div>
+                        )}
                       </div>
-                    )}
-                    {registration.paymentProofImageUrl && (
-                      <button
-                        className="training-payment-trigger"
-                        type="button"
-                        onClick={() =>
-                          setPreviewImage({
-                            src: registration.paymentProofImageUrl,
-                            alt: "إثبات الدفع",
-                          })
-                        }
-                      >
-                        <img src={registration.paymentProofImageUrl} alt="إثبات الدفع" />
-                        <span>إثبات الدفع</span>
-                        <small>اضغط لعرض الفاتورة كاملة</small>
-                      </button>
-                    )}
+                    </div>
+
+                    <div className="training-reg-images">
+                      {registration.profileImageUrl && (
+                        <div className="training-reg-avatar">
+                          <img src={registration.profileImageUrl} alt="صورة اللاعب" />
+                        </div>
+                      )}
+                      {registration.paymentProofImageUrl && (
+                        <button
+                          className="training-reg-proof"
+                          type="button"
+                          onClick={() =>
+                            setPreviewImage({
+                              src: registration.paymentProofImageUrl,
+                              alt: "إثبات الدفع",
+                            })
+                          }
+                        >
+                          <img src={registration.paymentProofImageUrl} alt="إثبات الدفع" />
+                          <span>إثبات الدفع</span>
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="training-reg-footer">
+                    <small>{formatDate(registration.createdAt)}</small>
+                    <span className="training-reg-ref">مرجع: {registration.transactionReference}</span>
                   </div>
 
                   {isAdmin && String(registration.status ?? "").toLowerCase() === "pending" && (
