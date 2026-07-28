@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useUserProfiles } from "../context/UserProfileContext.jsx";
-import { getCourt, getCourtTrainingSportId } from "../data/courts.js";
+import { getCourt as getFallbackCourt, getCourtTrainingSportId } from "../data/courts.js";
 import { getTrainingSport } from "../data/trainingCatalog.js";
+import { getCourt } from "../services/courtService.js";
 
 import {
-  fileToOptimizedDataUrl,
   validateImageFile,
 } from "../utils/imageUtils.js";
 import { convertImageToJpeg } from "../utils/convertImageToJpeg.js";
@@ -34,9 +34,6 @@ function useImagePreview(file) {
 
   return preview;
 }
-        
-
-
 
 export default function TrainingRegistrationPage() {
   const navigate = useNavigate();
@@ -45,7 +42,30 @@ export default function TrainingRegistrationPage() {
   const courtId = searchParams.get("court") || "";
 
   const sport = getTrainingSport(sportId);
-  const court = getCourt(courtId);
+  const [court, setCourt] = useState(null);
+  const [apiCourt, setApiCourt] = useState(null);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getCourt(courtId)
+      .then((data) => {
+        if (!cancelled) {
+          setApiCourt(data);
+          setCourt(data);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          const fallback = getFallbackCourt(courtId);
+          setApiCourt(null);
+          setCourt(fallback);
+        }
+      });
+
+    return () => { cancelled = true; };
+  }, [courtId]);
+
   const courtMatchesSport =
     court && sport && getCourtTrainingSportId(court) === sport.id;
 
@@ -75,51 +95,41 @@ export default function TrainingRegistrationPage() {
     setSuccess("");
   }
 
- async function handleImageChange(
-  event,
-  setter,
-  label
-) {
-  const selectedFile =
-    event.target.files?.[0] ?? null;
+  async function handleImageChange(event, setter, label) {
+    const selectedFile = event.target.files?.[0] ?? null;
 
-  if (!selectedFile) {
-    setter(null);
-    return;
-  }
-
-  try {
-    setError("");
-    setSuccess("");
-
-    const convertedFile =
-      await convertImageToJpeg(selectedFile);
-
-    const validationError =
-      validateImageFile(
-        convertedFile,
-        label
-      );
-
-    if (validationError) {
-      event.target.value = "";
+    if (!selectedFile) {
       setter(null);
-      setError(validationError);
       return;
     }
 
-    setter(convertedFile);
-  } catch (error) {
-    event.target.value = "";
-    setter(null);
+    try {
+      setError("");
+      setSuccess("");
 
-    setError(
-      error instanceof Error
-        ? error.message
-        : "تعذر تجهيز الصورة."
-    );
+      const convertedFile = await convertImageToJpeg(selectedFile);
+      const validationError = validateImageFile(convertedFile, label);
+
+      if (validationError) {
+        event.target.value = "";
+        setter(null);
+        setError(validationError);
+        return;
+      }
+
+      setter(convertedFile);
+    } catch (error) {
+      event.target.value = "";
+      setter(null);
+
+      setError(
+        error instanceof Error
+          ? error.message
+          : "تعذر تجهيز الصورة."
+      );
+    }
   }
-}
+
   function validateForm() {
     if (!sport || !court || !courtMatchesSport) {
       return "اختار الملعب قبل التسجيل.";
@@ -159,9 +169,7 @@ export default function TrainingRegistrationPage() {
     setError("");
     setSuccess("");
 
-    const returnUrl = `/training/register/${sportId}?court=${encodeURIComponent(
-      courtId
-    )}`;
+    const returnUrl = `/training/register/${sportId}?court=${encodeURIComponent(courtId)}`;
 
     if (!user || !accessToken) {
       navigate("/login", {
@@ -181,31 +189,23 @@ export default function TrainingRegistrationPage() {
     try {
       setIsSubmitting(true);
 
-      const profileImageData = profileImage
-        ? await fileToOptimizedDataUrl(profileImage)
-        : existingProfile?.profileImage ?? "";
-      const paymentProofData = await fileToOptimizedDataUrl(paymentProofImage);
+      const formData = new FormData();
+      formData.append("courtId", apiCourt?.id ?? court.id);
+      formData.append("participantName", form.participantName.trim());
+      formData.append("age", String(Number(form.age)));
+      formData.append("phone", existingProfile?.phone ?? user.phone ?? "");
+      formData.append("paymentMethod", form.paymentMethod);
+      formData.append("transactionReference", form.transactionReference.trim());
 
-      submitTrainingRegistration({
-        userId: user.id,
-        userEmail: user.email,
-        phone: existingProfile?.phone ?? user.phone ?? "",
-        participantName: form.participantName.trim(),
-        age: Number(form.age),
-        courtId: court.id,
-        courtName: court.name.ar,
-        sportId: sport.id,
-        sportType: sport.value,
-        sportName: sport.name,
-        coachId: null,
-        coachName: "",
-        coachTitle: "",
-        trainingPrice: sport.price,
-        paymentMethod: form.paymentMethod,
-        transactionReference: form.transactionReference.trim(),
-        profileImage: profileImageData,
-        paymentProofImage: paymentProofData,
-      });
+      if (profileImage) {
+        formData.append("profileImage", profileImage);
+      }
+
+      if (paymentProofImage) {
+        formData.append("paymentProofImage", paymentProofImage);
+      }
+
+      await submitTrainingRegistration(formData);
 
       setSuccess(
         "تم إرسال طلب التدريب للإدارة بنجاح. الإدارة هتحدد الكابتن والموعد النهائي بعد مراجعة الطلب."
@@ -276,7 +276,7 @@ export default function TrainingRegistrationPage() {
 
           <div className="training-selection-detail">
             <small>الملعب</small>
-            <strong>{court.name.ar}</strong>
+            <strong>{court.name?.ar ?? court.name}</strong>
           </div>
 
           <div className="training-selection-detail">
@@ -457,7 +457,7 @@ function FileUploadField({
         name={inputName}
         accept="image/*,.heic,.heif"
         onChange={onChange}
-/>
+      />
 
         {safePreview ? (
           <img

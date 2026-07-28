@@ -9,226 +9,149 @@ import {
 
 import * as signalR from "@microsoft/signalr";
 import { useAuth } from "./AuthContext.jsx";
+import {
+  getNotifications as fetchNotifications,
+  getUnreadCount as fetchUnreadCount,
+  markAsRead as apiMarkAsRead,
+  markAllAsRead as apiMarkAllAsRead,
+  deleteNotification as apiDeleteNotification,
+  deleteAllNotifications as apiDeleteAllNotifications,
+} from "../services/notificationService.js";
 
 const NotificationContext = createContext(null);
-const NOTIFICATIONS_STORAGE_KEY = "khub-notifications-v1";
 
 const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL ??
-  "https://localhost:7187"
+  import.meta.env.VITE_API_BASE_URL ?? ""
 ).replace(/\/$/, "");
-function readNotifications() {
-  try {
-    const saved = localStorage.getItem(NOTIFICATIONS_STORAGE_KEY);
-    const parsed = saved ? JSON.parse(saved) : [];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
-  }
-}
-
-function normalizeNotification(notification) {
-  return {
-    id: notification.id ?? crypto.randomUUID(),
-    userId: String(notification.userId ?? ""),
-    title: notification.title ?? "إشعار جديد",
-    message: notification.message ?? "",
-    type: notification.type ?? "info",
-    link: notification.link ?? "/notifications",
-    sourceType: notification.sourceType ?? "general",
-    sourceId: notification.sourceId ?? "",
-    status: notification.status ?? "",
-    isRead: Boolean(notification.isRead),
-    createdAt: notification.createdAt ?? new Date().toISOString(),
-    readAt: notification.readAt ?? null,
-  };
-}
 
 export function NotificationProvider({ children }) {
-  const { user ,accessToken } = useAuth();
-  const [notifications, setNotifications] = useState(readNotifications);
-
-  const persist = useCallback((nextNotifications) => {
-    localStorage.setItem(
-      NOTIFICATIONS_STORAGE_KEY,
-      JSON.stringify(nextNotifications)
-    );
-    setNotifications(nextNotifications);
-  }, []);
+  const { user, accessToken } = useAuth();
+  const [notifications, setNotifications] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
-    function handleStorage(event) {
-      if (event.key === NOTIFICATIONS_STORAGE_KEY) {
-        setNotifications(readNotifications());
-      }
+    if (!user?.id) {
+      setNotifications([]);
+      return;
     }
 
-    window.addEventListener("storage", handleStorage);
-    return () => window.removeEventListener("storage", handleStorage);
-  }, []);
+    let cancelled = false;
+    setIsLoading(true);
 
-  const addNotification = useCallback(
-    (notification) => {
-      if (!notification?.userId) {
-        return null;
-      }
-      useEffect(() => {
-  if (!user?.id || !accessToken) {
-    return undefined;
-  }
-
-  const connection = new signalR.HubConnectionBuilder()
-    .withUrl(`${API_BASE_URL}/hubs/notifications`, {
-      accessTokenFactory: () => accessToken,
-    })
-    .withAutomaticReconnect()
-    .configureLogging(signalR.LogLevel.Information)
-    .build();
-
-  connection.on(
-    "NotificationReceived",
-    (notification) => {
-      console.log(
-        "SignalR notification received:",
-        notification
-      );
-
-      addNotification(notification);
-    }
-  );
-
-  async function startConnection() {
-    try {
-      await connection.start();
-
-      console.log(
-        "SignalR connected:",
-        connection.connectionId
-      );
-    } catch (error) {
-      console.error(
-        "SignalR connection failed:",
-        error
-      );
-    }
-  }
-
-  startConnection();
-
-  return () => {
-    connection.off("NotificationReceived");
-
-    connection.stop().catch((error) => {
-      console.error(
-        "SignalR stop failed:",
-        error
-      );
-    });
-  };
-}, [accessToken, addNotification, user?.id]);
-
-      const nextNotification = normalizeNotification(notification);
-      const duplicateKey = [
-        nextNotification.userId,
-        nextNotification.sourceType,
-        nextNotification.sourceId,
-        nextNotification.status,
-      ].join(":");
-
-      let createdNotification = nextNotification;
-
-      setNotifications((current) => {
-        const withoutDuplicate = current.filter((item) => {
-          const itemKey = [
-            String(item.userId),
-            item.sourceType ?? "general",
-            item.sourceId ?? "",
-            item.status ?? "",
-          ].join(":");
-
-          return itemKey !== duplicateKey;
-        });
-
-        const next = [nextNotification, ...withoutDuplicate];
-        localStorage.setItem(
-          NOTIFICATIONS_STORAGE_KEY,
-          JSON.stringify(next)
-        );
-        return next;
+    fetchNotifications()
+      .then((data) => {
+        if (!cancelled) setNotifications(data ?? []);
+      })
+      .catch(() => {
+        if (!cancelled) setNotifications([]);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
       });
 
-      window.dispatchEvent(
-        new CustomEvent("khub-notification-created", {
-          detail: createdNotification,
-        })
-      );
+    return () => { cancelled = true; };
+  }, [user?.id]);
 
-      return createdNotification;
+  const addNotification = useCallback((notification) => {
+    setNotifications((current) => {
+      const exists = current.some((n) => n.id === notification.id);
+      if (exists) return current;
+      return [notification, ...current];
+    });
+  }, []);
+
+  const markAsRead = useCallback(
+    async (notificationId) => {
+      try {
+        const updated = await apiMarkAsRead(notificationId);
+        setNotifications((current) =>
+          current.map((n) =>
+            n.id === notificationId ? { ...n, isRead: true, readAt: updated?.readAt ?? new Date().toISOString() } : n
+          )
+        );
+      } catch {
+        setNotifications((current) =>
+          current.map((n) =>
+            n.id === notificationId ? { ...n, isRead: true } : n
+          )
+        );
+      }
     },
     []
   );
 
-  const markAsRead = useCallback(
-    (notificationId) => {
-      const now = new Date().toISOString();
-      const next = notifications.map((notification) =>
-        notification.id === notificationId
-          ? { ...notification, isRead: true, readAt: notification.readAt ?? now }
-          : notification
-      );
-      persist(next);
-    },
-    [notifications, persist]
-  );
-
-  const markAllAsRead = useCallback(() => {
-    if (!user?.id) return;
-
-    const now = new Date().toISOString();
-    const next = notifications.map((notification) =>
-      String(notification.userId) === String(user.id)
-        ? { ...notification, isRead: true, readAt: notification.readAt ?? now }
-        : notification
+  const markAllAsRead = useCallback(async () => {
+    try {
+      await apiMarkAllAsRead();
+    } catch {
+      // silent
+    }
+    setNotifications((current) =>
+      current.map((n) => ({ ...n, isRead: true, readAt: n.readAt ?? new Date().toISOString() }))
     );
-    persist(next);
-  }, [notifications, persist, user?.id]);
+  }, []);
 
   const removeNotification = useCallback(
-    (notificationId) => {
-      persist(
-        notifications.filter(
-          (notification) => notification.id !== notificationId
-        )
+    async (notificationId) => {
+      try {
+        await apiDeleteNotification(notificationId);
+      } catch {
+        // silent
+      }
+      setNotifications((current) =>
+        current.filter((n) => n.id !== notificationId)
       );
     },
-    [notifications, persist]
+    []
   );
 
-  const clearMyNotifications = useCallback(() => {
-    if (!user?.id) return;
+  const clearMyNotifications = useCallback(async () => {
+    try {
+      await apiDeleteAllNotifications();
+    } catch {
+      // silent
+    }
+    setNotifications([]);
+  }, []);
 
-    persist(
-      notifications.filter(
-        (notification) =>
-          String(notification.userId) !== String(user.id)
-      )
-    );
-  }, [notifications, persist, user?.id]);
+  useEffect(() => {
+    if (!user?.id || !accessToken) {
+      return undefined;
+    }
 
-  const userNotifications = useMemo(() => {
-    if (!user?.id) return [];
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl(`${API_BASE_URL || "https://localhost:7187"}/hubs/notifications`, {
+        accessTokenFactory: () => accessToken,
+      })
+      .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Information)
+      .build();
 
-    return notifications
-      .filter(
-        (notification) =>
-          String(notification.userId) === String(user.id)
-      )
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  }, [notifications, user?.id]);
+    connection.on("NotificationReceived", (notification) => {
+      addNotification(notification);
+    });
+
+    connection.start().catch((error) => {
+      console.error("SignalR connection failed:", error);
+    });
+
+    return () => {
+      connection.off("NotificationReceived");
+      connection.stop().catch((error) => {
+        console.error("SignalR stop failed:", error);
+      });
+    };
+  }, [accessToken, addNotification, user?.id]);
 
   const unreadCount = useMemo(
-    () => userNotifications.filter((notification) => !notification.isRead).length,
-    [userNotifications]
+    () => notifications.filter((n) => !n.isRead).length,
+    [notifications]
+  );
+
+  const userNotifications = useMemo(
+    () =>
+      [...notifications].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+    [notifications]
   );
 
   const value = useMemo(
@@ -236,6 +159,7 @@ export function NotificationProvider({ children }) {
       notifications,
       userNotifications,
       unreadCount,
+      isLoading,
       addNotification,
       markAsRead,
       markAllAsRead,
@@ -243,14 +167,15 @@ export function NotificationProvider({ children }) {
       clearMyNotifications,
     }),
     [
-      addNotification,
-      clearMyNotifications,
-      markAllAsRead,
-      markAsRead,
       notifications,
-      removeNotification,
-      unreadCount,
       userNotifications,
+      unreadCount,
+      isLoading,
+      addNotification,
+      markAsRead,
+      markAllAsRead,
+      removeNotification,
+      clearMyNotifications,
     ]
   );
 

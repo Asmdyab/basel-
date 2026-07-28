@@ -4,18 +4,12 @@ import {
   useMemo,
   useState,
 } from "react";
+import { loginApi, registerApi } from "../services/authService.js";
 
 const AuthContext = createContext(null);
 
-const API_BASE_URL = String(
-  import.meta.env.VITE_API_BASE_URL ?? ""
-).replace(/\/$/, "");
-
-const IS_DEMO_MODE = true;
-
 const ACCESS_TOKEN_KEY = "accessToken";
 const SESSION_USER_KEY = "khub-user";
-const DEMO_USERS_KEY = "khub-demo-users";
 
 const NAME_CLAIM =
   "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name";
@@ -28,224 +22,6 @@ const ROLE_CLAIM =
 
 const ID_CLAIM =
   "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
-
-const initialDemoUsers = [
-  {
-    id: "admin-1",
-    name: "K-HUB Admin",
-    email: "admin@khub.com",
-    phone: "01000000000",
-    password: "Admin123!",
-    role: "Admin",
-  },
-  {
-    id: "user-1",
-    name: "Demo User",
-    email: "user@khub.com",
-    phone: "01111111111",
-    password: "User123!",
-    role: "User",
-  },
-];
-
-function normalizeEmail(email) {
-  return String(email ?? "")
-    .trim()
-    .toLowerCase();
-}
-
-function createId() {
-  if (typeof crypto?.randomUUID === "function") {
-    return crypto.randomUUID();
-  }
-
-  return `user-${Date.now()}-${Math.random()
-    .toString(16)
-    .slice(2)}`;
-}
-
-function readDemoUsers() {
-  try {
-    const savedUsers =
-      localStorage.getItem(DEMO_USERS_KEY);
-
-    if (!savedUsers) {
-      localStorage.setItem(
-        DEMO_USERS_KEY,
-        JSON.stringify(initialDemoUsers)
-      );
-
-      return [...initialDemoUsers];
-    }
-
-    const parsedUsers = JSON.parse(savedUsers);
-
-    if (!Array.isArray(parsedUsers)) {
-      throw new Error("Invalid demo users.");
-    }
-
-    return parsedUsers;
-  } catch {
-    localStorage.setItem(
-      DEMO_USERS_KEY,
-      JSON.stringify(initialDemoUsers)
-    );
-
-    return [...initialDemoUsers];
-  }
-}
-
-function saveDemoUsers(users) {
-  localStorage.setItem(
-    DEMO_USERS_KEY,
-    JSON.stringify(users)
-  );
-}
-
-function encodeBase64Url(value) {
-  const bytes = new TextEncoder().encode(value);
-
-  let binaryValue = "";
-
-  bytes.forEach((byte) => {
-    binaryValue += String.fromCharCode(byte);
-  });
-
-  return window
-    .btoa(binaryValue)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/g, "");
-}
-
-function createDemoToken(user) {
-  const nowInSeconds = Math.floor(Date.now() / 1000);
-
-  const header = {
-    alg: "none",
-    typ: "JWT",
-  };
-
-  const payload = {
-    sub: user.id,
-    exp: nowInSeconds + 60 * 60 * 24 * 7,
-
-    [ID_CLAIM]: user.id,
-    [NAME_CLAIM]: user.name,
-    [EMAIL_CLAIM]: user.email,
-    [ROLE_CLAIM]: user.role,
-
-    name: user.name,
-    email: user.email,
-    role: user.role,
-  };
-
-  return [
-    encodeBase64Url(JSON.stringify(header)),
-    encodeBase64Url(JSON.stringify(payload)),
-    "demo-signature",
-  ].join(".");
-}
-
-function createSafeUser(user) {
-  return {
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    phone: user.phone ?? "",
-    role: user.role ?? "User",
-  };
-}
-
-function wait(milliseconds = 450) {
-  return new Promise((resolve) => {
-    window.setTimeout(resolve, milliseconds);
-  });
-}
-
-async function demoLogin(credentials) {
-  await wait();
-
-  const email = normalizeEmail(credentials.email);
-  const password = String(credentials.password ?? "");
-
-  const users = readDemoUsers();
-
-  const matchedUser = users.find(
-    (user) =>
-      normalizeEmail(user.email) === email &&
-      user.password === password
-  );
-
-  if (!matchedUser) {
-    throw new Error(
-      "الإيميل أو كلمة المرور غير صحيحة."
-    );
-  }
-
-  const safeUser = createSafeUser(matchedUser);
-
-  return {
-    user: safeUser,
-    accessToken: createDemoToken(safeUser),
-  };
-}
-
-async function demoRegister(userData) {
-  await wait();
-
-  const fullName = String(
-    userData.fullName ?? userData.name ?? ""
-  ).trim();
-
-  const email = normalizeEmail(userData.email);
-
-  const phone = String(
-    userData.phoneNumber ?? userData.phone ?? ""
-  ).trim();
-
-  const password = String(
-    userData.password ?? ""
-  );
-
-  if (!fullName || !email || !phone || !password) {
-    throw new Error(
-      "كمّل الاسم والإيميل ورقم الموبايل والباسورد."
-    );
-  }
-
-  const users = readDemoUsers();
-
-  const emailAlreadyExists = users.some(
-    (user) =>
-      normalizeEmail(user.email) === email
-  );
-
-  if (emailAlreadyExists) {
-    throw new Error(
-      "يوجد حساب مسجل بهذا الإيميل."
-    );
-  }
-
-  const newUser = {
-    id: createId(),
-    name: fullName,
-    email,
-    phone,
-    password,
-    role: "User",
-  };
-
-  users.push(newUser);
-  saveDemoUsers(users);
-
-  const safeUser = createSafeUser(newUser);
-
-  return {
-    user: safeUser,
-    accessToken: createDemoToken(safeUser),
-  };
-}
 
 function readSavedToken() {
   return localStorage.getItem(ACCESS_TOKEN_KEY);
@@ -262,16 +38,6 @@ function readSavedUser() {
   } catch {
     return null;
   }
-}
-
-function getTokenFromResponse(data) {
-  return (
-    data?.accessToken ??
-    data?.token ??
-    data?.value?.accessToken ??
-    data?.value?.token ??
-    null
-  );
 }
 
 function decodeJwtPayload(token) {
@@ -348,43 +114,6 @@ function createUserFromToken(token) {
   };
 }
 
-async function fetchApi(path, options) {
-  try {
-    return await fetch(
-      `${API_BASE_URL}${path}`,
-      options
-    );
-  } catch {
-    throw new Error(
-      "تعذر الاتصال بالسيرفر. فعّل Demo Mode أو تأكد أن الـBackend يعمل."
-    );
-  }
-}
-
-async function readResponse(response) {
-  const data = await response
-    .json()
-    .catch(() => null);
-
-  if (!response.ok) {
-    const validationErrors = data?.errors
-      ? Object.values(data.errors)
-          .flat()
-          .join(" ")
-      : null;
-
-    throw new Error(
-      data?.error ??
-        data?.detail ??
-        validationErrors ??
-        data?.title ??
-        "حدث خطأ أثناء تنفيذ الطلب."
-    );
-  }
-
-  return data;
-}
-
 function getInitialSession() {
   const token = readSavedToken();
   const savedUser = readSavedUser();
@@ -439,9 +168,9 @@ export function AuthProvider({ children }) {
   }
 
   async function login(credentials) {
-    const email = normalizeEmail(
-      credentials.email
-    );
+    const email = String(
+      credentials.email ?? ""
+    ).trim().toLowerCase();
 
     const password = String(
       credentials.password ?? ""
@@ -456,40 +185,12 @@ export function AuthProvider({ children }) {
     setIsLoading(true);
 
     try {
-      if (IS_DEMO_MODE) {
-        const result = await demoLogin({
-          email,
-          password,
-        });
+      const data = await loginApi({
+        email,
+        password,
+      });
 
-        saveSession(
-          result.accessToken,
-          result.user
-        );
-
-        return result.user;
-      }
-
-      const response = await fetchApi(
-        "/api/auth/login",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type": "application/json",
-          },
-
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-        }
-      );
-
-      const data = await readResponse(response);
-
-      const token =
-        getTokenFromResponse(data);
+      const token = data?.accessToken;
 
       if (!token) {
         throw new Error(
@@ -524,73 +225,13 @@ export function AuthProvider({ children }) {
     setIsLoading(true);
 
     try {
-      if (IS_DEMO_MODE) {
-        const result =
-          await demoRegister(userData);
-
-        saveSession(
-          result.accessToken,
-          result.user
-        );
-
-        return result.user;
-      }
-
-      const fullName = String(
-        userData.fullName ??
-          userData.name ??
-          ""
-      ).trim();
-
-      const email = normalizeEmail(
-        userData.email
-      );
-
-      const password = String(
-        userData.password ?? ""
-      );
-
-      const phoneNumber = String(
-        userData.phoneNumber ??
-          userData.phone ??
-          ""
-      ).trim();
-
-      if (
-        !fullName ||
-        !email ||
-        !password ||
-        !phoneNumber
-      ) {
-        throw new Error(
-          "كمّل الاسم والإيميل ورقم الموبايل والباسورد."
-        );
-      }
-
-      const response = await fetchApi(
-        "/api/auth/register",
-        {
-          method: "POST",
-
-          headers: {
-            "Content-Type":
-              "application/json",
-          },
-
-          body: JSON.stringify({
-            fullName,
-            email,
-            password,
-            phoneNumber,
-          }),
-        }
-      );
-
-      await readResponse(response);
+      await registerApi(userData);
 
       return await login({
-        email,
-        password,
+        email:
+          userData.email,
+        password:
+          userData.password,
       });
     } finally {
       setIsLoading(false);
@@ -627,7 +268,6 @@ export function AuthProvider({ children }) {
       isAdmin,
       isAuthenticated,
       isLoading,
-      isDemoMode: IS_DEMO_MODE,
     }),
     [
       user,

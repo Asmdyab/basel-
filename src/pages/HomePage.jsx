@@ -1,16 +1,29 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { courts, paymentMethods } from "../data/courts.js";
+import { courts as fallbackCourts, paymentMethods } from "../data/courts.js";
 import CourtCard from "../components/CourtCard.jsx";
+import { getCourts } from "../services/courtService.js";
 import { useLanguage } from "../context/LanguageContext.jsx";
 
 export default function HomePage() {
   const { t, pick } = useLanguage();
+  const [courts, setCourts] = useState([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getCourts()
+      .then((data) => {
+        if (!cancelled) setCourts(data);
+      })
+      .catch(() => {
+        if (!cancelled) setCourts(fallbackCourts);
+      });
+
+    return () => { cancelled = true; };
+  }, []);
+
   const featuredCourts = courts.slice(0, 3);
-  const sports = courts.map((court) => ({
-    id: court.id,
-    icon: court.icon,
-    type: pick(court.typeLabel),
-  }));
   const sportCards = [...new Map(courts.map((court) => [court.type, court])).values()];
 
   return (
@@ -34,8 +47,8 @@ export default function HomePage() {
           </div>
 
           <div className="hero-sports-strip" aria-label="Available sports">
-            {sports.map((sport) => (
-              <span key={sport.id}>{sport.icon} {sport.type}</span>
+            {sportCards.map((court) => (
+              <span key={court.id}>{court.icon} {pick(court.typeLabel)}</span>
             ))}
           </div>
         </div>

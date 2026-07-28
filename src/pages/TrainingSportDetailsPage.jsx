@@ -1,10 +1,9 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { getCourt, getCourtTrainingSportId } from "../data/courts.js";
-import {
-  getSportCoaches,
-  getTrainingSport,
-} from "../data/trainingCatalog.js";
+import { getCourt as getFallbackCourt, getCourtTrainingSportId } from "../data/courts.js";
+import { getSportCoaches, getTrainingSport } from "../data/trainingCatalog.js";
+import { getCourt } from "../services/courtService.js";
+import { getCoaches } from "../services/coachService.js";
 import "./TrainingCatalog.css";
 
 export default function TrainingSportDetailsPage() {
@@ -13,11 +12,33 @@ export default function TrainingSportDetailsPage() {
   const courtId = searchParams.get("court") || "";
 
   const sport = getTrainingSport(sportId);
-  const court = getCourt(courtId);
-  const coaches = useMemo(() => getSportCoaches(sportId), [sportId]);
+  const [court, setCourt] = useState(null);
+  const [coaches, setCoaches] = useState([]);
 
-  const courtMatchesSport =
-    court && sport && getCourtTrainingSportId(court) === sport.id;
+  useEffect(() => {
+    let cancelled = false;
+
+    if (courtId) {
+      getCourt(courtId)
+        .then((data) => { if (!cancelled) setCourt(data); })
+        .catch(() => { if (!cancelled) setCourt(getFallbackCourt(courtId)); });
+    }
+
+    if (sport?.value) {
+      getCoaches(sport.value)
+        .then((data) => { if (!cancelled) setCoaches(data); })
+        .catch(() => {
+          if (!cancelled) {
+            const fallbackCoaches = getSportCoaches(sportId);
+            setCoaches(fallbackCoaches);
+          }
+        });
+    }
+
+    return () => { cancelled = true; };
+  }, [courtId, sport?.value, sportId]);
+
+  const courtMatchesSport = court && sport && getCourtTrainingSportId(court) === sport.id;
 
   if (!sport) {
     return (
@@ -49,9 +70,7 @@ export default function TrainingSportDetailsPage() {
     );
   }
 
-  const registrationUrl = `/training/register/${sport.id}?court=${encodeURIComponent(
-    court.id
-  )}`;
+  const registrationUrl = `/training/register/${sport.id}?court=${encodeURIComponent(court.id)}`;
 
   return (
     <div className="training-catalog-page" dir="rtl">
@@ -63,7 +82,7 @@ export default function TrainingSportDetailsPage() {
         <div className="training-sport-hero__overlay" />
         <div className="training-sport-hero__content">
           <Link to={`/courts/${court.id}`} className="training-back-link">
-            → الرجوع إلى {court.name.ar}
+            → الرجوع إلى {court.name?.ar ?? court.name}
           </Link>
           <span>{sport.englishName}</span>
           <h1>تدريب {sport.name}</h1>
@@ -71,7 +90,7 @@ export default function TrainingSportDetailsPage() {
           <div className="training-sport-hero__stats">
             <div>
               <small>الملعب</small>
-              <strong>{court.name.ar}</strong>
+              <strong>{court.name}</strong>
             </div>
             <div>
               <small>مدة الحصة</small>
@@ -108,30 +127,6 @@ export default function TrainingSportDetailsPage() {
             </div>
           </article>
 
-          <article className="training-detail-panel" id="times">
-            <div className="training-catalog-heading compact">
-              <div>
-                <p>AVAILABLE TIMES</p>
-                <h2>المواعيد المتاحة</h2>
-              </div>
-              <span className="training-view-only-pill">للعرض فقط</span>
-            </div>
-
-            <p className="training-times-note">
-              المواعيد دي للمعرفة فقط. المستخدم مش بيختار موعد أثناء التسجيل،
-              والإدارة بتحدد الموعد النهائي بعد مراجعة الطلب والتواصل معاه.
-            </p>
-
-            <div className="training-slots-grid">
-              {sport.availableSlots.map((slot) => (
-                <div key={slot.id} className="training-slot-card view-only">
-                  <span>{slot.day}</span>
-                  <strong>{slot.time}</strong>
-                  <small>{slot.seats} أماكن متاحة</small>
-                </div>
-              ))}
-            </div>
-          </article>
 
           <article className="training-detail-panel" id="coaches">
             <div className="training-catalog-heading compact">
@@ -141,12 +136,6 @@ export default function TrainingSportDetailsPage() {
               </div>
               <span className="training-view-only-pill">للعرض فقط</span>
             </div>
-
-            <p className="training-times-note">
-              تقدر تشوف صورة كل كابتن وخبراته وبطولاته وشهاداته. اختيار
-              الكابتن مش مطلوب أثناء التسجيل، والإدارة هي اللي بتحدد الكابتن
-              المناسب بعد مراجعة الطلب.
-            </p>
 
             <div className="training-coaches-grid">
               {coaches.map((coach) => {
@@ -177,10 +166,7 @@ export default function TrainingSportDetailsPage() {
                       </div>
 
                       <div className="training-coach-card__actions">
-                        <Link
-                          className="training-secondary-button full"
-                          to={coachUrl}
-                        >
+                        <Link className="training-secondary-button full" to={coachUrl}>
                           عرض التفاصيل والـ CV
                         </Link>
                       </div>
@@ -198,7 +184,7 @@ export default function TrainingSportDetailsPage() {
           <dl>
             <div>
               <dt>الملعب</dt>
-              <dd>{court.name.ar}</dd>
+              <dd>{court.name?.ar ?? court.name}</dd>
             </div>
             <div>
               <dt>المواعيد</dt>

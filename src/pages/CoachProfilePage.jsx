@@ -1,19 +1,52 @@
+import { useEffect, useState } from "react";
 import { Link, useParams, useSearchParams } from "react-router-dom";
-import { getCourt, getCourtTrainingSportId } from "../data/courts.js";
-import { getCoach, getTrainingSport } from "../data/trainingCatalog.js";
+import { getCoach as getFallbackCoach, getTrainingSport } from "../data/trainingCatalog.js";
+import { getCoach } from "../services/coachService.js";
+import { getCourt as getFallbackCourt, getCourtTrainingSportId } from "../data/courts.js";
+import { getCourt } from "../services/courtService.js";
 import "./TrainingCatalog.css";
 
 export default function CoachProfilePage() {
   const { coachId } = useParams();
   const [searchParams] = useSearchParams();
-  const coach = getCoach(coachId);
+  const [coach, setCoach] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const sportId = searchParams.get("sport") || coach?.sportId;
   const courtId = searchParams.get("court") || "";
   const sport = getTrainingSport(sportId);
-  const court = getCourt(courtId);
+  const [court, setCourt] = useState(null);
 
-  const courtMatchesSport =
-    court && sport && getCourtTrainingSportId(court) === sport.id;
+  useEffect(() => {
+    let cancelled = false;
+
+    getCoach(coachId)
+      .then((data) => { if (!cancelled) setCoach(data); })
+      .catch(() => {
+        const fallback = getFallbackCoach(coachId);
+        if (!cancelled) setCoach(fallback ?? null);
+      })
+      .finally(() => { if (!cancelled) setIsLoading(false); });
+
+    if (courtId) {
+      getCourt(courtId)
+        .then((data) => { if (!cancelled) setCourt(data); })
+        .catch(() => { if (!cancelled) setCourt(getFallbackCourt(courtId)); });
+    }
+
+    return () => { cancelled = true; };
+  }, [coachId, courtId]);
+
+  const courtMatchesSport = court && sport && getCourtTrainingSportId(court) === sport.id;
+
+  if (isLoading) {
+    return (
+      <div className="training-catalog-page" dir="rtl">
+        <div className="training-catalog-empty">
+          <h1>جاري تحميل بيانات الكابتن...</h1>
+        </div>
+      </div>
+    );
+  }
 
   if (!coach || !sport || !court || !courtMatchesSport) {
     return (
@@ -46,7 +79,7 @@ export default function CoachProfilePage() {
           <h1>{coach.name}</h1>
           <p>{coach.bio}</p>
           <div className="coach-profile-chips">
-            {coach.specialties.map((specialty) => (
+            {(coach.specialties ?? []).map((specialty) => (
               <span key={specialty}>{specialty}</span>
             ))}
           </div>
@@ -78,7 +111,7 @@ export default function CoachProfilePage() {
             <p className="coach-profile-eyebrow">CHAMPIONSHIPS</p>
             <h2>البطولات والإنجازات</h2>
             <div className="coach-achievements-list">
-              {coach.championships.map((championship, index) => (
+              {(coach.championships ?? []).map((championship, index) => (
                 <div key={championship}>
                   <span>🏆</span>
                   <div>
@@ -94,7 +127,7 @@ export default function CoachProfilePage() {
             <p className="coach-profile-eyebrow">EXPERIENCE</p>
             <h2>الخبرات العملية</h2>
             <div className="coach-timeline">
-              {coach.experience.map((item) => (
+              {(coach.experience ?? []).map((item) => (
                 <div key={`${item.place}-${item.period}`}>
                   <span />
                   <div>
@@ -111,7 +144,7 @@ export default function CoachProfilePage() {
             <p className="coach-profile-eyebrow">CERTIFICATES</p>
             <h2>الشهادات والدورات</h2>
             <div className="coach-certificates-grid">
-              {coach.certificates.map((certificate) => (
+              {(coach.certificates ?? []).map((certificate) => (
                 <div key={certificate}>
                   <span>✓</span>
                   <strong>{certificate}</strong>
@@ -137,7 +170,7 @@ export default function CoachProfilePage() {
 
           <div className="coach-selected-slot">
             <small>الملعب</small>
-            <strong>{court.name.ar}</strong>
+            <strong>{court.name}</strong>
           </div>
 
           <div className="coach-selected-slot">

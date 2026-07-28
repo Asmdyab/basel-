@@ -1,14 +1,44 @@
+import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import {
-  getCourt,
-  getCourtTrainingSportId,
-} from "../data/courts.js";
+import { getCourt as getFallbackCourt, getCourtTrainingSportId } from "../data/courts.js";
+import { getCourt } from "../services/courtService.js";
 import { useLanguage } from "../context/LanguageContext.jsx";
 
 export default function CourtDetailsPage() {
   const { courtId } = useParams();
   const { t, pick } = useLanguage();
-  const court = getCourt(courtId);
+  const [court, setCourt] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getCourt(courtId)
+      .then((data) => {
+        if (!cancelled) setCourt(data);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          const fallback = getFallbackCourt(courtId);
+          setCourt(fallback);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [courtId]);
+
+  if (isLoading) {
+    return (
+      <div className="page section">
+        <div className="empty-state">
+          <h2>جاري تحميل تفاصيل الملعب...</h2>
+        </div>
+      </div>
+    );
+  }
 
   if (!court) {
     return (
@@ -33,16 +63,18 @@ export default function CourtDetailsPage() {
       <div className="details-hero premium-card" style={{ "--accent": court.accent }}>
         <div className="details-image-col">
           <img src={court.gallery[0]} alt={pick(court.name)} className="details-main-image" />
-          <div className="details-gallery-row">
-            {court.gallery.map((image, index) => (
-              <img
-                key={`${court.id}-${index}`}
-                src={image}
-                alt={`${pick(court.name)} ${index + 1}`}
-                className="details-thumb"
-              />
-            ))}
-          </div>
+          {court.gallery.length > 1 && (
+            <div className="details-gallery-row">
+              {court.gallery.map((image, index) => (
+                <img
+                  key={`${court.id}-${index}`}
+                  src={image}
+                  alt={`${pick(court.name)} ${index + 1}`}
+                  className="details-thumb"
+                />
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="details-content-col">
@@ -61,15 +93,15 @@ export default function CourtDetailsPage() {
             </div>
             <div>
               <small>{t("details.capacity")}</small>
-              <strong>{pick(court.capacity)}</strong>
+              <strong>{court.capacity}</strong>
             </div>
             <div>
               <small>{t("details.surface")}</small>
-              <strong>{pick(court.surface)}</strong>
+              <strong>{court.surface || "--"}</strong>
             </div>
             <div>
               <small>{t("details.location")}</small>
-              <strong>{pick(court.location)}</strong>
+              <strong>{court.location || "--"}</strong>
             </div>
             <div>
               <small>{t("details.openHours")}</small>
@@ -80,7 +112,7 @@ export default function CourtDetailsPage() {
           <div className="details-section">
             <h3>{t("details.features")}</h3>
             <ul className="feature-list details-feature-list">
-              {pick(court.features)?.map((feature) => (
+              {court.features?.map((feature) => (
                 <li key={feature}>{feature}</li>
               ))}
             </ul>

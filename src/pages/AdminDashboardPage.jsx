@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { useBookings } from '../context/BookingContext.jsx';
-import { courts } from '../data/courts.js';
 import { toLocalDateInputValue } from '../utils/bookingUtils.js';
 
 export default function AdminDashboardPage() {

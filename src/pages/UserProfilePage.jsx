@@ -4,7 +4,6 @@ import { useAuth } from "../context/AuthContext.jsx";
 import { useBookings } from "../context/BookingContext.jsx";
 import { useUserProfiles } from "../context/UserProfileContext.jsx";
 import {
-  fileToOptimizedDataUrl,
   validateImageFile,
 } from "../utils/imageUtils.js";
 import "./UserProfilePage.css";
@@ -160,7 +159,14 @@ export default function UserProfilePage() {
     }
 
     try {
-      let image = profile.profileImage;
+      const formData = new FormData();
+      formData.append("name", editForm.name.trim());
+      formData.append("phone", editForm.phone.trim());
+      formData.append("age", editForm.age ? String(age) : "");
+
+      if (editForm.preferredSport) {
+        formData.append("preferredSport", editForm.preferredSport);
+      }
 
       if (profileImageFile) {
         const imageError = validateImageFile(profileImageFile, "الصورة الشخصية");
@@ -170,16 +176,10 @@ export default function UserProfilePage() {
           return;
         }
 
-        image = await fileToOptimizedDataUrl(profileImageFile);
+        formData.append("profileImage", profileImageFile);
       }
 
-      upsertProfile(targetUserId, {
-        name: editForm.name.trim(),
-        phone: editForm.phone.trim(),
-        age: editForm.age ? age : "",
-        preferredSport: editForm.preferredSport,
-        profileImage: image,
-      });
+      await upsertProfile(targetUserId, formData);
 
       setProfileImageFile(null);
       setProfileMessage("تم تحديث بيانات الصفحة الشخصية.");
@@ -188,16 +188,15 @@ export default function UserProfilePage() {
     }
   }
 
-  function changePoints(direction) {
+  async function changePoints(direction) {
     setPointsMessage("");
 
     try {
       const amount = Math.abs(Number(pointsAmount)) * direction;
-      const updated = adjustPoints({
+      const updated = await adjustPoints({
         userId: targetUserId,
         amount,
         note: pointsNote,
-        admin: user,
       });
 
       setPointsMessage(`تم تحديث الرصيد إلى ${updated.points} نقطة.`);

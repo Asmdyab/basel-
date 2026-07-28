@@ -1,12 +1,32 @@
 import { useEffect, useMemo, useState } from 'react';
 import CourtCard from '../components/CourtCard.jsx';
-import { courts, getSportTypes } from '../data/courts.js';
+import { courts as fallbackCourts, getSportTypes } from '../data/courts.js';
+import { getCourts } from '../services/courtService.js';
 import { useLanguage } from '../context/LanguageContext.jsx';
 
 export default function CourtsPage() {
   const { language, t, pick } = useLanguage();
   const [activeType, setActiveType] = useState(t('courts.all'));
   const [searchTerm, setSearchTerm] = useState('');
+  const [courts, setCourts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    getCourts()
+      .then((data) => {
+        if (!cancelled) setCourts(data);
+      })
+      .catch(() => {
+        if (!cancelled) setCourts(fallbackCourts);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, []);
 
   const sportTypes = useMemo(() => getSportTypes(language, t), [language, t]);
 
@@ -23,7 +43,17 @@ export default function CourtsPage() {
       const matchesSearch = !search || pool.includes(search);
       return matchesType && matchesSearch;
     });
-  }, [activeType, searchTerm, pick, t]);
+  }, [activeType, searchTerm, pick, t, courts]);
+
+  if (isLoading) {
+    return (
+      <div className="page section">
+        <div className="empty-state">
+          <h2>جاري تحميل الملاعب...</h2>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="page section">

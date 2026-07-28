@@ -567,7 +567,7 @@ export function LanguageProvider({ children }) {
       },
 
       pick(value) {
-        if (!value || typeof value === 'string') {
+        if (value == null || typeof value !== 'object' || Array.isArray(value)) {
           return value;
         }
 
