@@ -1,14 +1,17 @@
 import { Link } from 'react-router-dom';
 import { useBookings } from '../context/BookingContext.jsx';
+import { useUserProfiles } from '../context/UserProfileContext.jsx';
 import { toLocalDateInputValue } from '../utils/bookingUtils.js';
 
 export default function AdminDashboardPage() {
   const { bookings, approveBooking, rejectBooking } = useBookings();
+  const { trainingRegistrations, updateTrainingStatus } = useUserProfiles();
   const today = toLocalDateInputValue();
   const todayBookings = bookings.filter((booking) => booking.date === today);
   const confirmedBookings = bookings.filter((booking) => booking.status === 'confirmed');
   const pendingPayments = bookings.filter((booking) => booking.status === 'pending');
   const revenue = confirmedBookings.reduce((total, booking) => total + Number(booking.price || 0), 0);
+  const pendingTrainings = trainingRegistrations.filter((r) => r.status === "Pending");
 
   return (
     <div className="page section">
@@ -38,6 +41,12 @@ export default function AdminDashboardPage() {
           <p>إجمالي المؤكد ج.م</p>
         </article>
 
+        <article className="admin-stat-card">
+          <span>🏋️</span>
+          <strong>{pendingTrainings.length}</strong>
+          <p>طلبات تدريب قيد المراجعة</p>
+        </article>
+
       </section>
 
       <section className="admin-actions-grid">
@@ -53,6 +62,13 @@ export default function AdminDashboardPage() {
           <div>
             <h3>الملاعب</h3>
             <p>عرض كل الملاعب والتفاصيل والأسعار أمام العملاء.</p>
+          </div>
+        </Link>
+        <Link className="admin-action-card" to="/admin/training-registrations">
+          <span>🏋️</span>
+          <div>
+            <h3>طلبات التدريب</h3>
+            <p>مراجعة طلبات التدريب، تعيين الكابتن والموعد، قبول أو رفض.</p>
           </div>
         </Link>
         <Link className="admin-action-card" to="/admin/users">
@@ -94,6 +110,54 @@ export default function AdminDashboardPage() {
                 <div className="admin-review-actions">
                   <button className="btn btn-primary" onClick={() => approveBooking(booking.id)}>تأكيد</button>
                   <button className="btn btn-danger" onClick={() => rejectBooking(booking.id)}>رفض</button>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="section compact-section">
+        <div className="section-heading">
+          <div>
+            <p className="eyebrow">Training Review</p>
+            <h2>طلبات التدريب قيد المراجعة</h2>
+          </div>
+          <Link className="link-btn" to="/admin/training-registrations">عرض كل الطلبات ←</Link>
+        </div>
+
+        {pendingTrainings.length === 0 ? (
+          <div className="empty-state">
+            <h2>لا توجد طلبات تدريب قيد المراجعة</h2>
+            <p>طلبات التدريب الجديدة من المستخدمين ستظهر هنا للمراجعة والقبول أو الرفض.</p>
+          </div>
+        ) : (
+          <div className="admin-pending-grid">
+            {pendingTrainings.map((reg) => (
+              <article className="pending-payment-card" key={reg.id}>
+                <div>
+                  <span className="chip warning">قيد المراجعة</span>
+                  <h3>{reg.participantName}</h3>
+                  <p>{reg.sportName} — {reg.courtName}</p>
+                  <p>العمر: {reg.age} • {reg.trainingPrice} ج.م</p>
+                  {reg.phone && <p>رقم الهاتف: {reg.phone}</p>}
+                </div>
+                {reg.paymentProofImageUrl && (
+                  <img src={reg.paymentProofImageUrl} alt="إثبات الدفع" />
+                )}
+                <div className="admin-review-actions">
+                  <button
+                    className="btn btn-primary"
+                    onClick={() => updateTrainingStatus(reg.id, "Approved")}
+                  >
+                    قبول
+                  </button>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => updateTrainingStatus(reg.id, "Rejected")}
+                  >
+                    رفض
+                  </button>
                 </div>
               </article>
             ))}

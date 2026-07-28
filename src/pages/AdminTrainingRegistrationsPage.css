@@ -1,0 +1,173 @@
+.atr-filter-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.atr-tab {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: var(--cream-2);
+  color: var(--primary);
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.15s ease;
+  font-size: 13px;
+}
+
+.atr-tab.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.atr-list {
+  display: grid;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.atr-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  box-shadow: var(--shadow-small);
+  padding: 20px;
+  transition: 0.2s ease;
+}
+
+.atr-card--reviewing {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px var(--gold-light);
+}
+
+.atr-card-header {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.atr-card-info h3 {
+  margin: 8px 0 4px;
+  font-size: 17px;
+}
+
+.atr-card-info p {
+  margin: 2px 0;
+  color: var(--muted);
+  font-weight: 900;
+  font-size: 13px;
+}
+
+.atr-meta {
+  margin-top: 6px !important;
+}
+
+.atr-assigned {
+  color: var(--primary) !important;
+  margin-top: 6px !important;
+}
+
+.atr-note {
+  color: var(--primary-dark) !important;
+  margin-top: 6px !important;
+  font-style: italic;
+}
+
+.atr-card-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+  min-width: 110px;
+}
+
+.atr-card-actions .proof-image-link img {
+  width: 90px;
+  height: 90px;
+  object-fit: contain;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+}
+
+.atr-review-form {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+  display: grid;
+  gap: 14px;
+}
+
+.atr-review-status {
+  display: flex;
+  gap: 12px;
+}
+
+.atr-status-option {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  border: 2px solid var(--line);
+  background: var(--cream-2);
+  cursor: pointer;
+  font-weight: 900;
+  transition: 0.15s ease;
+}
+
+.atr-status-option:has(input:checked),
+.atr-status-option.selected {
+  border-color: var(--primary);
+  background: white;
+}
+
+.atr-status-option input {
+  display: none;
+}
+
+.atr-assign-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+
+.atr-note-field textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: white;
+  font-size: 14px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.atr-submit-row {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+@media (max-width: 750px) {
+  .atr-card-header {
+    flex-direction: column;
+  }
+
+  .atr-card-actions {
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+  }
+
+  .atr-assign-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .atr-review-status {
+    flex-direction: column;
+  }
+}

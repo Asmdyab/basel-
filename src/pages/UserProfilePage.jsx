@@ -23,8 +23,9 @@ function bookingStatus(status) {
 }
 
 function registrationStatus(status) {
-  if (status === "approved") return { label: "مقبول", className: "success" };
-  if (status === "rejected") return { label: "مرفوض", className: "danger-chip" };
+  const s = String(status ?? "").toLowerCase();
+  if (s === "approved") return { label: "مقبول", className: "success" };
+  if (s === "rejected") return { label: "مرفوض", className: "danger-chip" };
   return { label: "قيد المراجعة", className: "warning" };
 }
 
@@ -53,10 +54,12 @@ export default function UserProfilePage() {
   const { bookings } = useBookings();
   const {
     getProfile,
+    fetchProfile,
     upsertProfile,
     trainingRegistrations,
     adjustPoints,
     updateTrainingStatus,
+    isLoadingProfile,
   } = useUserProfiles();
 
   const targetUserId = routeUserId ?? user?.id;
@@ -80,7 +83,7 @@ export default function UserProfilePage() {
     () =>
       trainingRegistrations
         .filter((registration) => registration.userId === targetUserId)
-        .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+        .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt))),
     [targetUserId, trainingRegistrations]
   );
 
@@ -100,6 +103,7 @@ export default function UserProfilePage() {
 
   useEffect(() => {
     if (!profile) {
+      if (isAdmin && targetUserId) fetchProfile(targetUserId);
       return;
     }
 
@@ -121,6 +125,16 @@ export default function UserProfilePage() {
   ]);
 
   if (!canView) {
+    if (isLoadingProfile) {
+      return (
+        <div className="page section">
+          <div className="empty-state">
+            <h2>جاري تحميل الملف الشخصي...</h2>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="page section">
         <div className="empty-state">
@@ -134,11 +148,11 @@ export default function UserProfilePage() {
     );
   }
 
-  const confirmedCount = userBookings.filter(
-    (booking) => booking.status === "confirmed"
+  const trainingPendingCount = userRegistrations.filter(
+    (r) => String(r.status ?? "").toLowerCase() === "pending"
   ).length;
-  const pendingCount = userBookings.filter(
-    (booking) => booking.status === "pending"
+  const trainingApprovedCount = userRegistrations.filter(
+    (r) => String(r.status ?? "").toLowerCase() === "approved"
   ).length;
 
   async function saveProfile(event) {
@@ -240,18 +254,18 @@ export default function UserProfilePage() {
       <section className="profile-stats-grid">
         <article>
           <span>🏟️</span>
-          <strong>{userBookings.length}</strong>
-          <p>إجمالي الحجوزات</p>
-        </article>
-        <article>
-          <span>✅</span>
-          <strong>{confirmedCount}</strong>
-          <p>حجوزات مؤكدة</p>
+          <strong>{userRegistrations.length}</strong>
+          <p>إجمالي طلبات التدريب</p>
         </article>
         <article>
           <span>⏳</span>
-          <strong>{pendingCount}</strong>
+          <strong>{trainingPendingCount}</strong>
           <p>قيد المراجعة</p>
+        </article>
+        <article>
+          <span>✅</span>
+          <strong>{trainingApprovedCount}</strong>
+          <p>مقبولة</p>
         </article>
         <article>
           <span>🏅</span>
@@ -479,7 +493,7 @@ export default function UserProfilePage() {
                   <div className="training-history-copy">
                     <span className={`chip ${status.className}`}>{status.label}</span>
                     <h3>{registration.sportName ?? sportLabels[registration.sportType] ?? registration.sportType}</h3>
-                    {registration.coachName && <p>الكابتن: {registration.coachName}</p>}
+                    {registration.assignedCoachName && <p>الكابتن: {registration.assignedCoachName}</p>}
                     {registration.courtName && <p>الملعب: {registration.courtName}</p>}
                     <p>العمر: {registration.age} سنة</p>
                     <p>الدفع: {registration.paymentMethod}</p>
@@ -489,43 +503,43 @@ export default function UserProfilePage() {
                   </div>
 
                   <div className="training-history-images">
-                    {registration.profileImage && (
+                    {registration.profileImageUrl && (
                       <div className="training-profile-image">
-                        <img src={registration.profileImage} alt="صورة اللاعب" />
+                        <img src={registration.profileImageUrl} alt="صورة اللاعب" />
                         <span>اللاعب</span>
                       </div>
                     )}
-                    {registration.paymentProofImage && (
+                    {registration.paymentProofImageUrl && (
                       <button
                         className="training-payment-trigger"
                         type="button"
                         onClick={() =>
                           setPreviewImage({
-                            src: registration.paymentProofImage,
+                            src: registration.paymentProofImageUrl,
                             alt: "إثبات الدفع",
                           })
                         }
                       >
-                        <img src={registration.paymentProofImage} alt="إثبات الدفع" />
+                        <img src={registration.paymentProofImageUrl} alt="إثبات الدفع" />
                         <span>إثبات الدفع</span>
                         <small>اضغط لعرض الفاتورة كاملة</small>
                       </button>
                     )}
                   </div>
 
-                  {isAdmin && registration.status === "pending" && (
+                  {isAdmin && String(registration.status ?? "").toLowerCase() === "pending" && (
                     <div className="training-admin-actions">
                       <button
                         className="btn btn-primary"
                         type="button"
-                        onClick={() => updateTrainingStatus(registration.id, "approved")}
+                        onClick={() => updateTrainingStatus(registration.id, "Approved")}
                       >
                         قبول
                       </button>
                       <button
                         className="btn btn-danger"
                         type="button"
-                        onClick={() => updateTrainingStatus(registration.id, "rejected")}
+                        onClick={() => updateTrainingStatus(registration.id, "Rejected")}
                       >
                         رفض
                       </button>

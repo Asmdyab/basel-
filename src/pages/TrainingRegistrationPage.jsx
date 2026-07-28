@@ -79,13 +79,11 @@ export default function TrainingRegistrationPage() {
     paymentMethod: "",
     transactionReference: "",
   });
-  const [profileImage, setProfileImage] = useState(null);
   const [paymentProofImage, setPaymentProofImage] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const profilePreview = useImagePreview(profileImage);
   const paymentPreview = useImagePreview(paymentProofImage);
 
   function handleInputChange(event) {
@@ -153,10 +151,6 @@ export default function TrainingRegistrationPage() {
       return "اكتب رقم أو مرجع عملية الدفع.";
     }
 
-    if (!profileImage && !existingProfile?.profileImage) {
-      return "الصورة الشخصية مطلوبة.";
-    }
-
     if (!paymentProofImage) {
       return "صورة إثبات الدفع مطلوبة.";
     }
@@ -197,10 +191,6 @@ export default function TrainingRegistrationPage() {
       formData.append("paymentMethod", form.paymentMethod);
       formData.append("transactionReference", form.transactionReference.trim());
 
-      if (profileImage) {
-        formData.append("profileImage", profileImage);
-      }
-
       if (paymentProofImage) {
         formData.append("paymentProofImage", paymentProofImage);
       }
@@ -211,7 +201,6 @@ export default function TrainingRegistrationPage() {
         "تم إرسال طلب التدريب للإدارة بنجاح. الإدارة هتحدد الكابتن والموعد النهائي بعد مراجعة الطلب."
       );
       setPaymentProofImage(null);
-      setProfileImage(null);
 
       window.setTimeout(() => {
         navigate("/profile", { replace: true });
@@ -257,8 +246,7 @@ export default function TrainingRegistrationPage() {
           <span>K-HUB TRAINING REQUEST</span>
           <h1>استكمال تسجيل التدريب</h1>
           <p>
-            راجع الملعب واللعبة، ثم أدخل بيانات اللاعب والدفع. الكابتن والموعد
-            النهائي تحددهما الإدارة بعد مراجعة الطلب.
+            راجع الملعب واللعبة، ثم أدخل بيانات اللاعب والدفع.
           </p>
         </header>
 
@@ -289,15 +277,6 @@ export default function TrainingRegistrationPage() {
             <strong>{sport.price} ج.م</strong>
           </div>
         </section>
-
-        <div className="registration-schedule-notice">
-          <strong>الكابتن والمواعيد تحددهما الإدارة</strong>
-          <span>
-            المواعيد والكباتن المعروضين في صفحة التفاصيل للمشاهدة فقط. الإدارة
-            هتختار الكابتن والموعد المتاح وتؤكدهما معاك بعد مراجعة التسجيل
-            والدفع.
-          </span>
-        </div>
 
         <form
           className="training-registration-form"
@@ -340,20 +319,6 @@ export default function TrainingRegistrationPage() {
               </label>
             </div>
 
-            <FileUploadField
-              title="الصورة الشخصية"
-              description={
-                existingProfile?.profileImage
-                  ? "اختار صورة جديدة أو احتفظ بالصورة الحالية."
-                  : "ارفع صورة واضحة للاعب."
-              }
-              inputName="profileImage"
-              preview={profilePreview || existingProfile?.profileImage || null}
-              variant="profile"
-              onChange={(event) =>
-                handleImageChange(event, setProfileImage, "الصورة الشخصية")
-              }
-            />
           </section>
 
           <section className="registration-form-section">

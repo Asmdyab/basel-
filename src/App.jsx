@@ -20,6 +20,7 @@ import CoachProfilePage from "./pages/CoachProfilePage.jsx";
 import TrainingRegistrationPage from "./pages/TrainingRegistrationPage.jsx";
 import UserProfilePage from "./pages/UserProfilePage.jsx";
 import AdminUsersPage from "./pages/AdminUsersPage.jsx";
+import AdminTrainingRegistrationsPage from "./pages/AdminTrainingRegistrationsPage.jsx";
 import NotificationsPage from "./pages/NotificationsPage.jsx";
 
 export default function App() {
@@ -95,6 +96,15 @@ export default function App() {
             element={
               <AdminRoute>
                 <UserProfilePage />
+              </AdminRoute>
+            }
+          />
+
+          <Route
+            path="/admin/training-registrations"
+            element={
+              <AdminRoute>
+                <AdminTrainingRegistrationsPage />
               </AdminRoute>
             }
           />

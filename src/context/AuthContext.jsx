@@ -23,6 +23,9 @@ const ROLE_CLAIM =
 const ID_CLAIM =
   "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
 
+const PHONE_CLAIM =
+  "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/mobilephone";
+
 function readSavedToken() {
   return localStorage.getItem(ACCESS_TOKEN_KEY);
 }
@@ -106,6 +109,9 @@ function createUserFromToken(token) {
       payload[EMAIL_CLAIM] ??
       payload.email ??
       "",
+
+    phone:
+      payload[PHONE_CLAIM] ?? "",
 
     role:
       payload[ROLE_CLAIM] ??

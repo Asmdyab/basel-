@@ -32,17 +32,20 @@ export default function Navbar() {
       </Link>
 
       <nav className="nav-links" aria-label="Main navigation">
-        <NavLink to="/">{t("nav.home")}</NavLink>
-
-        {user && !isAdmin && <NavLink to="/profile">صفحتي</NavLink>}
-
-        <NavLink to="/courts">{t("nav.courts")}</NavLink>
-        <NavLink to="/about">{t("nav.about")}</NavLink>
-        <NavLink to="/contact">{t("nav.contact")}</NavLink>
+        {!isAdmin && (
+          <>
+            <NavLink to="/">{t("nav.home")}</NavLink>
+            {user && <NavLink to="/profile">صفحتي</NavLink>}
+            <NavLink to="/courts">{t("nav.courts")}</NavLink>
+            <NavLink to="/about">{t("nav.about")}</NavLink>
+            <NavLink to="/contact">{t("nav.contact")}</NavLink>
+          </>
+        )}
 
         {isAdmin && (
           <>
             <NavLink to="/admin">Admin</NavLink>
+            <NavLink to="/admin/training-registrations">طلبات التدريب</NavLink>
             <NavLink to="/admin/users">المستخدمون</NavLink>
             <NavLink to="/schedule">{t("nav.schedule")}</NavLink>
           </>

@@ -38,11 +38,12 @@ export default function RegisterPage() {
       setIsSubmitting(true);
       const registeredUser = await register(form);
 
-      upsertProfile(registeredUser.id, {
-        name: registeredUser.name ?? form.name.trim(),
-        email: registeredUser.email ?? form.email.trim(),
-        phone: form.phone.trim(),
-      });
+      const profileFormData = new FormData();
+      profileFormData.append("name", registeredUser.name ?? form.name.trim());
+      profileFormData.append("phone", form.phone.trim());
+      profileFormData.append("age", "");
+
+      upsertProfile(registeredUser.id, profileFormData);
 
       navigate(
         registeredUser.role === "Admin" ? "/admin" : "/courts",
