@@ -68,7 +68,7 @@ export default function Navbar() {
 
         {user ? (
           <>
-            {!isAdmin && (
+            {(
               <Link
                 to="/notifications"
                 className="notification-bell-button"
