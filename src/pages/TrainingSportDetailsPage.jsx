@@ -81,8 +81,8 @@ export default function TrainingSportDetailsPage() {
         <img src={sport.image} alt={sport.name} />
         <div className="training-sport-hero__overlay" />
         <div className="training-sport-hero__content">
-          <Link to={`/courts/${court.id}`} className="training-back-link">
-            → الرجوع إلى {court.name?.ar ?? court.name}
+          <Link to="/courts" className="training-back-link">
+            → الرجوع إلى الملاعب
           </Link>
           <span>{sport.englishName}</span>
           <h1>تدريب {sport.name}</h1>

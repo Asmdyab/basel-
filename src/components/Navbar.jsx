@@ -45,6 +45,8 @@ export default function Navbar() {
         {isAdmin && (
           <>
             <NavLink to="/admin">Admin</NavLink>
+            <NavLink to="/admin/courts">الملاعب</NavLink>
+            <NavLink to="/admin/coaches">الكباتن</NavLink>
             <NavLink to="/admin/training-registrations">طلبات التدريب</NavLink>
             <NavLink to="/admin/users">المستخدمون</NavLink>
             <NavLink to="/schedule">{t("nav.schedule")}</NavLink>

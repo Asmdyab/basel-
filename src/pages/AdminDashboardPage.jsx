@@ -57,11 +57,18 @@ export default function AdminDashboardPage() {
             <p>متابعة الحجوزات حسب التاريخ والملعب ومراجعة الدفع.</p>
           </div>
         </Link>
-        <Link className="admin-action-card" to="/courts">
+        <Link className="admin-action-card" to="/admin/courts">
           <span>🏟️</span>
           <div>
-            <h3>الملاعب</h3>
-            <p>عرض كل الملاعب والتفاصيل والأسعار أمام العملاء.</p>
+            <h3>إدارة الملاعب</h3>
+            <p>إضافة ملعب، تعديل البيانات والأسعار والمواعيد، تفعيل أو حذف.</p>
+          </div>
+        </Link>
+        <Link className="admin-action-card" to="/admin/coaches">
+          <span>🧑‍🏫</span>
+          <div>
+            <h3>إدارة الكباتن</h3>
+            <p>إضافة مدرب، تعديل البيانات والأسعار والتخصصات، تفعيل أو حذف.</p>
           </div>
         </Link>
         <Link className="admin-action-card" to="/admin/training-registrations">

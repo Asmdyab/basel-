@@ -5,9 +5,11 @@ import { useLanguage } from "../context/LanguageContext.jsx";
 export default function CourtCard({ court }) {
   const { t, pick } = useLanguage();
   const trainingSportId = getCourtTrainingSportId(court);
+  // Clients always go straight to the training page (with the court
+  // preselected) so they can enroll. There is no court details page.
   const trainingUrl = trainingSportId
     ? `/training/${trainingSportId}?court=${encodeURIComponent(court.id)}`
-    : `/courts/${court.id}`;
+    : "/courts";
 
   return (
     <article className="court-card premium-card" style={{ "--accent": court.accent }}>
@@ -49,9 +51,6 @@ export default function CourtCard({ court }) {
         </ul>
 
         <div className="card-actions">
-          <Link className="btn btn-light full-width" to={`/courts/${court.id}`}>
-            {t("common.viewDetails")}
-          </Link>
           <Link className="btn btn-primary full-width" to={trainingUrl}>
             تسجيل تمرين
           </Link>

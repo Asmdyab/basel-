@@ -185,10 +185,10 @@ export function getSportTypes(language, t) {
 }
 
 const courtTrainingSportMap = {
-  Padel: "padel",
-  Basketball: "basketball",
-  Handball: "handball",
-  Tennis: "tennis",
+  padel: "padel",
+  basketball: "basketball",
+  handball: "handball",
+  tennis: "tennis",
 };
 
 export function getCourt(courtId) {
@@ -196,6 +196,7 @@ export function getCourt(courtId) {
 }
 
 export function getCourtTrainingSportId(courtOrType) {
-  const type = typeof courtOrType === "string" ? courtOrType : courtOrType?.type;
+  const raw = typeof courtOrType === "string" ? courtOrType : courtOrType?.type;
+  const type = String(raw ?? "").trim().toLowerCase();
   return courtTrainingSportMap[type] ?? null;
 }

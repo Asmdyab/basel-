@@ -10,6 +10,7 @@ import { useAuth } from "./AuthContext.jsx";
 import {
   getMyProfile,
   getProfile as apiGetProfile,
+  getAllProfiles as apiGetAllProfiles,
   updateProfile as apiUpdateProfile,
   adjustPoints as apiAdjustPoints,
 } from "../services/profileService.js";
@@ -39,16 +40,47 @@ export function UserProfileProvider({ children }) {
     let cancelled = false;
 
     setIsLoadingProfile(true);
-    getMyProfile()
-      .then((profile) => {
-        if (!cancelled && profile) {
-          setProfiles((current) => ({
-            ...current,
-            [profile.userId]: profile,
-          }));
+    const profileRequest =
+      user.role === "Admin"
+        ? apiGetAllProfiles().then((data) => {
+            const list = Array.isArray(data) ? data : [];
+            if (!cancelled && list.length > 0) {
+              setProfiles((current) => {
+                const next = { ...current };
+                list.forEach((profile) => {
+                  if (profile?.userId) next[profile.userId] = profile;
+                });
+                return next;
+              });
+            }
+            return list.length > 0 ? list[0] : null;
+          })
+        : getMyProfile().then((profile) => {
+            if (!cancelled && profile) {
+              setProfiles((current) => ({
+                ...current,
+                [profile.userId]: profile,
+              }));
+            }
+            return profile;
+          });
+
+    profileRequest
+      .catch(() => {
+        // Fallback for Admin: if bulk fetch fails (e.g. 403), at least load own profile.
+        if (!cancelled && user.role === "Admin") {
+          return getMyProfile()
+            .then((profile) => {
+              if (profile) {
+                setProfiles((current) => ({
+                  ...current,
+                  [profile.userId]: profile,
+                }));
+              }
+            })
+            .catch(() => {});
         }
       })
-      .catch(() => {})
       .finally(() => {
         if (!cancelled) setIsLoadingProfile(false);
       });
@@ -68,7 +100,7 @@ export function UserProfileProvider({ children }) {
       });
 
     return () => { cancelled = true; };
-  }, [user?.id]);
+  }, [user?.id, user?.role]);
 
   const fetchProfile = useCallback(async (userId) => {
     try {

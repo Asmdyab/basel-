@@ -1,6 +1,35 @@
 const DEFAULT_MAX_DIMENSION = 1280;
 const DEFAULT_QUALITY = 0.82;
 
+const API_BASE_URL = String(
+  import.meta.env.VITE_API_BASE_URL ?? ""
+).replace(/\/$/, "");
+
+export function resolveImageUrl(url) {
+  if (!url) return "";
+  const value = String(url).trim();
+  if (
+    value.startsWith("http://") ||
+    value.startsWith("https://") ||
+    value.startsWith("data:") ||
+    value.startsWith("blob:")
+  ) {
+    return value;
+  }
+  if (value.startsWith("/uploads/")) {
+    return `${API_BASE_URL}${value}`;
+  }
+  return value;
+}
+
+export function toStoredImageUrl(url) {
+  if (!url) return "";
+  const value = String(url).trim();
+  if (API_BASE_URL && value.startsWith(`${API_BASE_URL}/uploads/`)) {
+    return value.slice(API_BASE_URL.length);
+  }
+  return value;
+}
 export function validateImageFile(file, label = "الصورة", maximumBytes = 5 * 1024 * 1024) {
   if (!file) {
     return `${label} مطلوبة.`;

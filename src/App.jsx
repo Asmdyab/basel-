@@ -9,11 +9,12 @@ import HomePage from "./pages/HomePage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import RegisterPage from "./pages/RegisterPage.jsx";
 import CourtsPage from "./pages/CourtsPage.jsx";
-import CourtDetailsPage from "./pages/CourtDetailsPage.jsx";
 import AdminSchedulePage from "./pages/AdminSchedulePage.jsx";
 import AboutPage from "./pages/AboutPage.jsx";
 import ContactPage from "./pages/ContactPage.jsx";
 import AdminDashboardPage from "./pages/AdminDashboardPage.jsx";
+import AdminCourtsPage from "./pages/AdminCourtsPage.jsx";
+import AdminCoachesPage from "./pages/AdminCoachesPage.jsx";
 import AdminDeniedPage from "./pages/AdminDeniedPage.jsx";
 import TrainingSportDetailsPage from "./pages/TrainingSportDetailsPage.jsx";
 import CoachProfilePage from "./pages/CoachProfilePage.jsx";
@@ -34,7 +35,8 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/courts" element={<CourtsPage />} />
-          <Route path="/courts/:courtId" element={<CourtDetailsPage />} />
+          {/* No court details page: old links fall back to the courts list. */}
+          <Route path="/courts/:courtId" element={<Navigate to="/courts" replace />} />
           <Route path="/about" element={<AboutPage />} />
           <Route path="/contact" element={<ContactPage />} />
           <Route path="/admin-denied" element={<AdminDeniedPage />} />
@@ -105,6 +107,24 @@ export default function App() {
             element={
               <AdminRoute>
                 <AdminTrainingRegistrationsPage />
+              </AdminRoute>
+            }
+          />
+
+          <Route
+            path="/admin/courts"
+            element={
+              <AdminRoute>
+                <AdminCourtsPage />
+              </AdminRoute>
+            }
+          />
+
+          <Route
+            path="/admin/coaches"
+            element={
+              <AdminRoute>
+                <AdminCoachesPage />
               </AdminRoute>
             }
           />
